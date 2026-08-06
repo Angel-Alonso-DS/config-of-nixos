@@ -1,0 +1,78 @@
+/*
+ * Tema Rofi — paleta del proyecto (#0A131D/#68DDDD/#DBF7F5), migrado
+ * desde Walker por decisión explícita del usuario (elephant tenía bugs
+ * confirmados sin arreglo posible de nuestro lado: bluetooth power-on
+ * asimétrico, sin provider de red). Reemplaza por completo a Walker,
+ * incluyendo el launcher principal — no es un híbrido.
+ */
+
+* {
+    bg:       #0A131D;
+    bg-alt:   #16283A;
+    fg:       #DBF7F5;
+    accent:   #68DDDD;
+    border:   #6E8A86;
+
+    background-color: transparent;
+    text-color: @fg;
+    font: "JetBrainsMono Nerd Font 12";
+}
+
+window {
+    background-color: @bg;
+    border: 2px;
+    border-color: @accent;
+    border-radius: 12px;
+    width: 600px;
+    padding: 12px;
+}
+
+mainbox {
+    background-color: transparent;
+    children: [ "inputbar", "listview" ];
+    spacing: 10px;
+}
+
+inputbar {
+    background-color: @bg-alt;
+    border-radius: 8px;
+    padding: 8px 12px;
+    children: [ "prompt", "entry" ];
+}
+
+prompt {
+    text-color: @accent;
+    padding: 0 8px 0 0;
+}
+
+entry {
+    placeholder: "Buscar...";
+    placeholder-color: @border;
+}
+
+listview {
+    background-color: transparent;
+    lines: 8;
+    spacing: 4px;
+    scrollbar: false;
+}
+
+element {
+    background-color: transparent;
+    border-radius: 8px;
+    padding: 6px 10px;
+}
+
+element selected {
+    background-color: @accent;
+    text-color: @bg;
+}
+
+element-text {
+    background-color: transparent;
+    text-color: inherit;
+}
+
+element-icon {
+    size: 20px;
+}

@@ -1,0 +1,16 @@
+/*
+ * Paleta compartida — misma paleta que theme.rasi original (#0A131D/#68DDDD/#DBF7F5).
+ *
+ * 'urgent' no existía en tu paleta original: theme-mod.rasi lo necesita para el
+ * estado urgent de listview/mode-switcher (p. ej. ventanas que piden atención en
+ * modo "window"). Elegí #E08585 (rojo suave, misma luminosidad que el resto de
+ * la paleta) sólo como placeholder razonable — ajústalo si tienes otro color en mente.
+ */
+* {
+    background:     #0A131D;
+    background-alt: #16283A;
+    foreground:     #DBF7F5;
+    selected:       #68DDDD;
+    active:         #68DDDD;
+    urgent:         #E08585;
+}

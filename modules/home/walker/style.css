@@ -1,0 +1,36 @@
+/* Theme "nixos-alons" para Walker. Hereda del theme default de Walker
+   (según su propia documentación, los themes custom heredan y solo
+   necesitas sobreescribir el CSS). Paleta funcional Fase 2, no es la
+   pasada final de identidad visual (Fase 3). */
+
+* {
+    font-family: "JetBrainsMono Nerd Font", monospace;
+    font-size: 14px;
+}
+
+#window {
+    background-color: rgba(26, 27, 38, 0.95);
+    border: 1px solid rgba(133, 237, 164, 0.35); /* primario */
+    border-radius: 12px;
+}
+
+#search {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #e0e0e0;
+    border-radius: 8px;
+    padding: 8px;
+}
+
+#search:focus {
+    border: 1px solid #85EDA4; /* primario */
+}
+
+row {
+    color: #d8d8e0;
+    border-radius: 6px;
+}
+
+row:selected {
+    background-color: rgba(133, 237, 164, 0.15);
+    color: #85EDA4; /* primario */
+}

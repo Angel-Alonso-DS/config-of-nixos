@@ -1,0 +1,9 @@
+# Config mínima intencional. No incluyo providers.prefixes custom
+# todavía: primero corre `elephant listproviders` una vez esté corriendo
+# para ver qué providers están realmente disponibles en nixpkgs antes de
+# declarar prefixes que podrían apuntar a algo no instalado.
+theme = "nixos-alons"
+
+[placeholders.default]
+input = "Buscar..."
+list = "Resultados"
