@@ -17,15 +17,20 @@ hl.monitor({
     scale    = "1",
 })
 
-
--- TV
 hl.monitor({
-    output = "",
-    mode = "3840x2160@30",
+    output   = "HDMI-A-1",
+    mode     = "1920x1080@120",
     position = "1920x0",
-    scale = "1"
+    scale    = "1", 
 })
 
+-- TV
+-- hl.monitor({
+--     output = "",
+--     mode = "3840x2160@30",
+--     position = "1920x0",
+--     scale = "1"
+--})
 
 ---------------------
 ---- MY PROGRAMS ----
@@ -260,6 +265,7 @@ hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("lua ~/.config/hypr/scripts/w
 -- desde Waybar, se agregan también por teclado. N y SHIFT+B/SHIFT+P
 -- elegidos por no chocar con binds existentes (B=browser, P=pseudo).
 hl.bind(mainMod .. " + N",         hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/network-menu.lua"))
+hl.bind(mainMod .. " + H",         hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/hotspot-menu.lua"))
 hl.bind(mainMod .. " + CTRL + N",  hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/audio-output-menu.lua"))
 hl.bind(mainMod .. " + SHIFT + B", hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/bluetooth-menu.lua"))
 hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/power-menu.lua"))

@@ -111,6 +111,8 @@
   # Requerido por hyprlock para autenticar contra PAM.
   security.pam.services.hyprlock = { };
 
+  # Intento de impelentar un servicio que no resulto pero que se usa para a sesion
+
   systemd.user.services.polkit-gnome-authentication-agent-1 = {
     description = "polkit-gnome-authentication-agent-1";
     wantedBy = [ "graphical-session.target" ];

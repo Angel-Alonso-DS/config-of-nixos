@@ -54,6 +54,13 @@
     source = ./waybar/scripts/audio-output-menu.lua;
     executable = true;
   };
+  xdg.configFile."waybar/scripts/hotspot-menu.lua" = {
+    source = ./waybar/scripts/hotspot-menu.lua;
+    executable = true;
+  };
+  xdg.configFile."waybar/scripts/menu-common.lua" = {
+    source = ./waybar/scripts/menu-common.lua;
+  };
 
   programs.waybar = {
     enable = true;

@@ -2,7 +2,7 @@
 { config, pkgs, lib, ... }:
 {
   environment.systemPackages = [
-    pkgs.jetbrains.idea-oss
+    pkgs.jetbrains.idea
     pkgs.scenebuilder
   ];
 

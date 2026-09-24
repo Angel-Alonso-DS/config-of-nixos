@@ -17,12 +17,12 @@
   };
 
   boot.kernelParams = [
-    "nvidia_drm.modeset=1"
     "nvidia-drm.fbdev=1"
-    "nvidia.NVreg_PreserveVideoMemoryAllocations=1"
     "nvidia.NVreg_TemporaryFilePath=/var/tmp"
-    "mem_sleep_default=deep"
     "nvidia.NVreg_DynamicPowerManagement=0x00"
+    "pcie_aspm=off"
+    "pcie_port_pm=off"
+    "usbcore.quirks=3151:3020:gn"
   ];
 
   boot.initrd.kernelModules = [ "nvidia" "nvidia_modeset" "nvidia_uvm" "nvidia_drm" ];
@@ -30,7 +30,10 @@
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  nixpkgs.config.allowUnfree = true;
+  nixpkgs.config = {
+    allowUnfree = true;
+    android_sdk.accept_license = true;
+  };
 
   services.openssh.enable = true;
 
@@ -38,13 +41,40 @@
   networking = {
     hostName = "nixos-alons"; 
     networkmanager.enable = true;    # Habilita NetworkManager
-    firewall.allowedTCPPorts = [ 5173 ];
+    firewall = {
+      enable = true;
+      allowedTCPPorts = [ 
+        5173  # Puerto de frontend en react
+        25565 # Puerto para minecraft
+        # 3306  # Puerto de mysql de manera publica
+      ];
+
+      # Cambiar la ip por la real
+      extraCommands = ''
+        iptables -A nixos-fw -p tcp --dport 3306 -s 192.168.1.50 -j ACCEPT
+
+        iptables -A nixos-fw -p tcp --dport 3306 -s 172.23.50.42 -j ACCEPT
+        iptables -A nixos-fw -p tcp --dport 3306 -s 172.23.50.19 -j ACCEPT
+        iptables -A nixos-fw -p tcp --dport 3306 -s 192.168.56.1 -j ACCEPT
+      '';
+
+      extraStopCommands = ''
+        iptables -D nixos-fw -p tcp --dport 3306 -s 192.168.1.50 -j ACCEPT || true
+
+        iptables -D nixos-fw -p tcp --dport 3306 -s 172.23.50.42 -j ACCEPT || true
+        iptables -D nixos-fw -p tcp --dport 3306 -s 172.23.50.19 -j ACCEPT || true
+        iptables -D nixos-fw -p tcp --dport 3306 -s 192.168.56.1 -j ACCEPT || true
+      '';
+    };
   };
+
+
 
   # === 3. Usuario y Seguridad Básica ===
   users.users.alonso = {         # Reemplaza NIXOS_USER con tu nombre
     isNormalUser = true;
     extraGroups = [
+      "kvm"
       "wheel"
       "networkmanager"
       "input"
@@ -55,10 +85,10 @@
   };
 
   # Permite a los usuarios del grupo 'wheel' usar sudo sin contraseña.
-  security.sudo.extraRules = [{
-    groups = [ "wheel" ];
-    commands = [ { command = "ALL"; options = [ "NOPASSWD" ]; } ];
-  }];
+  # security.sudo.extraRules = [{
+  #   groups = [ "wheel" ];
+  #   commands = [ { command = "ALL"; options = [ "NOPASSWD" ]; } ];
+  # }];
 
   time.timeZone = "America/Mexico_City";
   time.hardwareClockInLocalTime = true;
@@ -71,17 +101,61 @@
   services.xserver.videoDrivers = [ "nvidia" ];
   hardware.nvidia = {
     modesetting.enable = true;
-    powerManagement.enable = true;  # A veces da problemas en laptops
-    # powerManagement.finegrained = true;
-    open = true;                    # Driver cerrado por estabilidad
+    powerManagement.enable = true;
+    open = true;
     nvidiaSettings = true;
     package = config.boot.kernelPackages.nvidiaPackages.stable;
-    # prime.sync.enable = true;
+  };
+
+  systemd.services = {
+    nvidia-suspend = {
+      description = "NVIDIA system suspend actions";
+      before = [ "systemd-suspend.service" ];
+      requiredBy = [ "systemd-suspend.service" ];
+      path = [ pkgs.kbd ];
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = "${config.hardware.nvidia.package.out}/bin/nvidia-sleep.sh suspend";
+      };
+    };
+
+    nvidia-resume = {
+      description = "NVIDIA system resume actions";
+      after = [ "systemd-suspend.service" ];
+      requiredBy = [ "systemd-suspend.service" ];
+      path = [ pkgs.kbd ];
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = "${config.hardware.nvidia.package.out}/bin/nvidia-sleep.sh resume";
+      };
+    };
+
+    nvidia-hibernate = {
+      description = "NVIDIA system hibernate actions";
+      before = [ "systemd-hibernate.service" ];
+      requiredBy = [ "systemd-hibernate.service" ];
+      path = [ pkgs.kbd ];
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = "${config.hardware.nvidia.package.out}/bin/nvidia-sleep.sh hibernate";
+      };
+    };
   };
 
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
+
+    extraPackages = with pkgs; [
+      vulkan-loader
+      vulkan-validation-layers
+      mesa
+    ];
+
+    extraPackages32 = with pkgs; [
+      pkgsi686Linux.vulkan-loader
+      pkgsi686Linux.mesa
+    ];
   };
 
   hardware.bluetooth.enable = true;
@@ -92,7 +166,14 @@
 
   # === 5. Herramientas base (sin entorno gráfico) ===
   environment.systemPackages = with pkgs; [
+    vulkan-tools
+    mesa-demos
+    iproute2
+    iw
     kitty
+    uv
+    gcc
+    pkg-config
     git            # Necesario para clonar tu configuración
     git-lfs
     pciutils
@@ -105,13 +186,12 @@
     pnpm
 
     # Java (JDK para desarrollo móvil y backend)
-    jdk21
+    jdk25
     maven          # para proyectos Java (opcional)
     gradle         # para Android/Java (opcional)
 
-    # Flutter (SDK para desarrollo móvil y desktop)
-    flutter
     # Android Studio es mejor instalarlo por separado, pero puedes añadir android-tools para ADB
+    android-studio
     android-tools
 
     godot_4
@@ -122,24 +202,19 @@
 
     # Bases de datos (servidores y clientes)
     mariadb
-    # mongodb
-    # mongosh        # shell moderna de MongoDB
     postgresql     # si también quieres PostgreSQL
 
     # Contenedores y virtualización
     docker
-    # docker-compose
     podman         # alternativa sin demonio
     qemu           # para emulación
 
     python3
 
-    davinci-resolve
+    kdePackages.kdenlive
 
     pixieditor
     vscode
-    antigravity
-    antigravity-fhs
 
     vim
     unrar
@@ -157,6 +232,37 @@
     darkly
   ];
 
+  environment.localBinInPath = true;
+
+  programs.nix-ld.enable = true;
+
+  programs.nix-ld.libraries = with pkgs; [
+    libGL
+    libglvnd
+    mesa
+
+    fontconfig
+    freetype
+    glib
+
+    stdenv.cc.cc.lib
+    zlib
+    openssl
+    openssl.dev
+    curl
+    libxml2
+    libxslt
+    bzip2
+    postgresql
+    zstd
+    icu
+  ];
+
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+  };
+
   qt.enable = true;
 
 
@@ -165,18 +271,25 @@
   services.mysql = {
     enable = true;
     package = pkgs.mariadb;
-    ensureDatabases = [ "ipartydjs_db" ];
-    ensureUsers = [{
-      name = "desa";
-      ensurePermissions = {
-        "ipartydjs_db.*" = "ALL PRIVILEGES";
-      };
-    }];
+    settings.mysqld = {
+      bind-address = "0.0.0.0";
+      port = 3306;
+    };
+    ensureDatabases = [ "ipartydjs_db" ]; # Base de datos de un proyecto anterior que no se esta desarrollando por el momento (Consideracion a quitar de la configuracio en un futuro)
+    ensureUsers = [
+      { # Usuario que uso para conexiones de la base de datos desde mi maquina sin necesidad de sudo
+        name = "desa";
+        ensurePermissions = {
+          "ipartydjs_db.*" = "ALL PRIVILEGES";
+        };
+      } {
+        name = "admin";
+        ensurePermissions = {
+          "*.*" = "ALL PRIVILEGES";
+        };
+      }
+    ];
   };
-
-  # services.mongodb = {
-  #   enable = true;
-  # };
 
   services.printing.enable = true;
 
@@ -185,11 +298,10 @@
     autoPrune.enable = true;
   };
 
-  environment.variables = {
-    JAVA_HOME = "${pkgs.jdk21}";
+  programs.java = {
+    enable = true;
+    package = pkgs.jdk25;
   };
-
-  programs.java.enable = true;
 
   fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
