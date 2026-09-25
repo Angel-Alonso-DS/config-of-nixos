@@ -34,6 +34,7 @@ M.icons = {
   link = g(0xF0337), unlink = g(0xF0338), search = g(0xF0349),
   refresh = g(0xF0450), trash = g(0xF01B4), cog = g(0xF0493),
   check = g(0xF012C), close = g(0xF0156), alert = g(0xF0026),
+  disk = g(0xF0A0),
 }
 local I = M.icons
 
