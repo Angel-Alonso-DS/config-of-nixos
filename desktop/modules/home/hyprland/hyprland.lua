@@ -41,7 +41,7 @@ local menu         = "rofi -show drun" -- Walker+elephant reemplazado por comple
 -- gestión de suspensión/lock, sin swww-daemon no hay wallpaper daemon
 -- corriendo. Ambos son requisitos que ya habíamos decidido para Fase 1.
 hl.on("hyprland.start", function()
-    hl.exec_cmd("systemctl --user start waybar.service swaync.service hypridle.service cliphist.service")
+    hl.exec_cmd("systemctl --user start waybar.service swaync.service hypridle.service cliphist-wipe.service cliphist.service")
     hl.exec_cmd("awww-daemon")
     hl.exec_cmd("sh -c 'sleep 1 && lua ~/.config/hypr/scripts/wallpaper.lua random'")
 end)
