@@ -1,0 +1,290 @@
+/* @css-root: ~/.config/gtk-4.0/gtk.css
+   Fase 3 — CLON de estructura de mechabar (theme.css, style.css y los
+   parciales de styles/), traducido a un solo archivo por decisión del usuario
+   (seguir usando Nix, un solo settings). Paleta Catppuccin Mocha
+   reemplazada por la del usuario (#0A131D/#68DDDD/#CDEDEB); estructura,
+   mecanismo de "bloques conectados" (divisores + 3 tonos de fondo
+   alternados) y reset agresivo de GTK se conservan tal cual el original,
+   porque ESO es lo que se pidió clonar.
+
+   RIESGO SIN VERIFICAR: `* { all: initial; }` es un reset agresivo. nuestros
+   módulos propios (idle_inhibitor, custom-power) nunca se probaron bajo
+   este reset — puede que pierdan algún estilo default. Probar y avisar. */
+
+@define-color main-bg      #0A131D;
+@define-color accent       #68DDDD;
+@define-color main-fg      #DBF7F5;
+@define-color main-br      #6E8A86;
+@define-color hover-bg     #16283A;
+@define-color outline      shade(#0A131D, 0.5);
+
+/* Los 3 tonos de bloque de mechabar (mantle/base/surface0) — mismo
+   propósito: contraste entre módulos vecinos, NO codificación temática.
+   Ya nos equivocamos dos veces asumiendo que era por categoría — no lo es. */
+@define-color tone-a  #0A131D; /* equivalente a "mantle" (más oscuro) */
+@define-color tone-b  #122131; /* equivalente a "base" */
+@define-color tone-c  #1C2D3E; /* equivalente a "surface0" (más claro) */
+
+@define-color hover-fg  alpha(#CDEDEB, 0.75);
+
+/* Asignación de tono por módulo, calcada 1:1 del patrón original */
+@define-color workspaces   @tone-a;
+@define-color cputemp      @tone-a;
+@define-color memory       @tone-b;
+@define-color cpu          @tone-c;
+@define-color time         @tone-c;
+@define-color date         @tone-b;
+@define-color tray         @tone-a;
+@define-color volume       @tone-a;
+@define-color backlight    @tone-b;
+@define-color battery      @tone-c;
+
+/* Estados reales (no decorativos) */
+@define-color warning   #E8B860;
+@define-color critical  #E67373;
+@define-color charging  #6EE7A8;
+
+* {
+    all: initial; /* Reset agresivo de GTK — ver advertencia arriba */
+    color: @main-fg;
+    font-family: "JetBrainsMono Nerd Font";
+    font-weight: bold;
+    font-size: 16px;
+}
+
+#window label,
+#mpris,
+tooltip label {
+    font-weight: normal;
+}
+
+#workspaces button.active label,
+#workspaces button.focused label,
+#custom-distro {
+    font-size: 20px;
+}
+
+#custom-power {
+    font-size: 18px;
+}
+
+#custom-left_div,
+#custom-left_inv,
+#custom-right_div,
+#custom-right_inv {
+    font-size: 22px;
+}
+
+.module {
+    margin-bottom: -1px;
+}
+
+#waybar {
+    background-color: @outline;
+}
+#waybar > box {
+    margin: 4px;
+    background-color: @main-bg;
+}
+
+button {
+    border-radius: 16px;
+    min-width: 16px;
+    padding: 0 10px;
+}
+button:hover {
+    background-color: @hover-bg;
+    color: @hover-fg;
+}
+
+tooltip {
+    border: 2px solid @main-br;
+    border-radius: 10px;
+    background-color: @main-bg;
+}
+tooltip > box {
+    padding: 0 6px;
+}
+
+/* ---------------- modules-left ---------------- */
+
+#custom-left_div.1,
+#custom-right_div.1 {
+    color: @workspaces;
+}
+#workspaces {
+    padding: 0 1px;
+    background-color: @workspaces;
+}
+#workspaces button.active label,
+#workspaces button.focused label {
+    color: @accent;
+}
+
+#window {
+    margin: 0 12px;
+}
+
+/* ---------------- modules-center ---------------- */
+
+#language {
+    margin-right: 12px;
+    color: @hover-fg;
+}
+
+#custom-left_div.2 {
+    color: @cputemp;
+}
+#custom-cputemp {
+    background-color: @cputemp;
+}
+
+#custom-left_div.3 {
+    background-color: @cputemp;
+    color: @memory;
+}
+#memory {
+    background-color: @memory;
+}
+
+#custom-left_div.4 {
+    background-color: @memory;
+    color: @cpu;
+}
+#cpu {
+    background-color: @cpu;
+}
+#custom-left_inv.1 {
+    color: @cpu;
+}
+
+#custom-left_div.5,
+#custom-right_div.2 {
+    color: @accent;
+}
+#custom-distro {
+    padding: 0 10px 0 5px;
+    background-color: @accent;
+    color: @main-bg;
+}
+
+#custom-right_inv.1 {
+    color: @time;
+}
+#idle_inhibitor {
+    background-color: @time;
+}
+
+#clock.time {
+    padding-right: 6px;
+    background-color: @time;
+}
+#custom-right_div.3 {
+    background-color: @date;
+    color: @time;
+}
+
+#clock.date {
+    padding-left: 6px;
+    background-color: @date;
+}
+#custom-right_div.4 {
+    background-color: @tray;
+    color: @date;
+}
+
+#network {
+    background-color: @tray;
+    padding: 0 6px 0 4px;
+}
+#bluetooth {
+    background-color: @tray;
+    padding: 0 5px;
+}
+#custom-right_div.5 {
+    color: @tray;
+}
+
+/* ---------------- modules-right ---------------- */
+
+#mpris {
+    padding: 0 12px;
+}
+
+#custom-left_div.6 {
+    color: @volume;
+}
+#pulseaudio {
+    background-color: @volume;
+}
+
+#custom-left_div.7 {
+    background-color: @volume;
+    color: @backlight;
+}
+#backlight {
+    background-color: @backlight;
+}
+
+#custom-left_div.8 {
+    background-color: @backlight;
+    color: @battery;
+}
+#battery {
+    background-color: @battery;
+}
+#custom-left_inv.2 {
+    color: @battery;
+}
+
+#custom-notification {
+    padding: 0 12px;
+    color: @main-fg;
+}
+#custom-notification:hover {
+    color: @hover-fg;
+}
+
+#custom-power {
+    border-radius: 16px;
+    padding: 0 19px 0 16px;
+    color: @accent;
+}
+#custom-power:hover {
+    background-color: @hover-bg;
+}
+
+/* ---------------- states.css ---------------- */
+
+#custom-menu:hover,
+#idle_inhibitor:hover,
+#clock.date:hover,
+#network:hover,
+#bluetooth:hover,
+#mpris:hover,
+#pulseaudio:hover {
+    color: @hover-fg;
+}
+
+#idle_inhibitor.deactivated,
+#mpris.paused,
+#pulseaudio.muted {
+    color: @hover-fg;
+}
+
+#memory.warning,
+#cpu.warning,
+#battery.warning {
+    color: @warning;
+}
+
+#custom-cputemp.critical,
+#memory.critical,
+#cpu.critical,
+#battery.critical {
+    color: @critical;
+}
+
+#battery.charging {
+    color: @charging;
+}

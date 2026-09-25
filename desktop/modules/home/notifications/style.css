@@ -1,0 +1,129 @@
+/* swaync — alineado con la paleta real del sistema (colors.rasi de rofi
+ *  y style.css de waybar): #0A131D / #16283A / #68DDDD / #DBF7F5.
+ *  Radios y espaciado calcados de theme.rasi (8px elementos, 12px contenedor)
+ *  para que las tres piezas se sientan como el mismo sistema de diseño. */
+
+* {
+    font-family: "JetBrainsMono Nerd Font";
+}
+
+list,
+row {
+    background: transparent;
+    background-color: transparent;
+    box-shadow: none;
+    border: none;
+}
+
+.control-center {
+    background-color: rgba(10, 19, 29, 0.92);
+    border: 1px solid rgba(104, 221, 221, 0.35);
+    border-radius: 12px;
+    color: #DBF7F5;
+}
+
+.control-center-list {
+    background: transparent;
+}
+
+widget-title {
+    padding: 10px 12px;
+    color: #DBF7F5;
+    font-weight: bold;
+}
+
+widget-title > button {
+    background-color: #16283A;
+    color: #68DDDD;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+widget-title > button:hover {
+    background-color: rgba(104, 221, 221, 0.15);
+}
+
+widget-dnd {
+    padding: 8px 12px;
+    color: #DBF7F5;
+}
+
+.widget-dnd > switch {
+    background-color: #16283A;
+    border-radius: 10px;
+}
+.widget-dnd > switch:checked {
+    background-color: #68DDDD;
+}
+.widget-dnd > switch slider {
+    background-color: #DBF7F5;
+    border-radius: 50%;
+}
+
+.notification-row {
+    background: transparent;
+    box-shadow: none;
+    margin: 6px 10px;
+}
+
+.notification-row .notification-background {
+    background-color: #122131;
+    border-radius: 8px;
+    box-shadow: none;
+    border: none;
+}
+.notification-row .notification-background:hover {
+    background-color: #16283A;
+    box-shadow: none;
+    border: none;
+}
+/* Notificación urgente: borde de acento a la izquierda, en vez de
+ *  cambiar todo el bloque de color (mismo criterio visual que waybar usa
+ *  para estados: color puntual, no un bloque entero gritando). */
+.notification-row.critical .notification-background {
+    border-left: 3px solid #E08585;
+}
+
+.notification-content {
+    padding: 10px 12px;
+}
+
+.summary {
+    color: #DBF7F5;
+    font-weight: bold;
+}
+
+.body {
+    color: rgba(219, 247, 245, 0.75);
+}
+
+.time {
+    color: rgba(219, 247, 245, 0.5);
+    font-size: 90%;
+}
+
+.close-button {
+    background-color: transparent;
+    color: rgba(219, 247, 245, 0.6);
+    border-radius: 8px;
+    padding: 2px 6px;
+}
+.close-button:hover {
+    background-color: rgba(224, 133, 133, 0.15);
+    color: #E08585;
+}
+
+.notification-action {
+    background-color: #16283A;
+    color: #68DDDD;
+    border-radius: 8px;
+    margin: 4px;
+    padding: 6px 10px;
+}
+.notification-action:hover {
+    background-color: rgba(104, 221, 221, 0.15);
+}
+
+.image {
+    border-radius: 8px;
+}
