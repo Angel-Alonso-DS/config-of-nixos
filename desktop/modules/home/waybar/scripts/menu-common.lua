@@ -35,6 +35,11 @@ M.icons = {
   refresh = g(0xF0450), trash = g(0xF01B4), cog = g(0xF0493),
   check = g(0xF012C), close = g(0xF0156), alert = g(0xF0026),
   disk = g(0xF0A0),
+  -- Wallpaper, capturas, USB, monitores
+  image = g(0xF0976), star = g(0xF04CE), star_outline = g(0xF04CF),
+  camera = g(0xF0100), crop = g(0xF01A1), fullscreen = g(0xF0293), edit = g(0xF03EB),
+  usb = g(0xF0A25), eject = g(0xF0169), sd_card = g(0xF01D9),
+  display = g(0xF0379), mirror = g(0xF0F41), expand = g(0xF0625),
 }
 local I = M.icons
 
@@ -213,9 +218,12 @@ local function rofi_failed(code, err)
   return true
 end
 
--- items: lista de strings o de tablas { text = "...", current = bool, ... }.
+-- items: lista de strings o de tablas { text = "...", current = bool,
+--        icon_path = "/ruta/absoluta" (opcional, ver opts.show_icons), ... }.
 -- opts : prompt, mesg, selected (índice 1-based), alt (habilita Alt+Enter),
---        no_custom (por defecto true: solo se puede elegir de la lista).
+--        no_custom (por defecto true: solo se puede elegir de la lista),
+--        show_icons (activa -show-icons; los items con icon_path muestran
+--        esa imagen —p. ej. una miniatura— junto al texto).
 -- Devuelve: item, índice, tecla ("enter" | "alt"); o nil si se canceló.
 -- Selecciona por ÍNDICE (-format i), no por texto: sin ambigüedad con
 -- nombres repetidos ni con iconos.
@@ -224,7 +232,11 @@ function M.select(items, opts)
   local lines, selected = {}, opts.selected
   for i, it in ipairs(items) do
     local text = (type(it) == "table") and it.text or tostring(it)
-    lines[i] = (text:gsub("\n", " "))
+    local line = (text:gsub("\n", " "))
+    if type(it) == "table" and it.icon_path then
+      line = line .. "\0icon\x1f" .. it.icon_path
+    end
+    lines[i] = line
     if not selected and type(it) == "table" and it.current then selected = i end
   end
 
@@ -233,6 +245,7 @@ function M.select(items, opts)
   if opts.mesg then args[#args + 1] = "-mesg " .. M.quote(opts.mesg) end
   if selected then args[#args + 1] = "-selected-row " .. (selected - 1) end
   if opts.alt then args[#args + 1] = "-kb-custom-1 " .. M.quote("Alt+Return") end
+  if opts.show_icons then args[#args + 1] = "-show-icons" end
 
   local out, code, err = rofi_call(lines, table.concat(args, " "))
   if rofi_failed(code, err) then return nil end

@@ -5,6 +5,14 @@
 
   xdg.configFile."hypr/hypridle.conf".source = ./hyprland/hypridle.conf;
 
+  xdg.configFile."hypr/hyprlock.conf".source = ./hyprland/hyprlock.conf;
+
+  xdg.configFile."swappy/config".text = ''
+    [Default]
+    save_dir=/home/alonso/Pictures/Screenshots
+    save_filename_format=captura_%Y-%m-%d_%H-%M-%S.png
+  '';
+
   systemd.user.services.hypridle = {
     Unit = {
       Description = "hypridle — gestor de inactividad de Hyprland";

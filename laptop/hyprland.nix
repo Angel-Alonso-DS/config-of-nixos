@@ -62,11 +62,7 @@
 
   environment.systemPackages = with pkgs; [
     waybar # Barra de estado
-    # swaynotificationcenter y swww: eliminados de aquí. Se gestionan vía
-    # Home Manager (notifications.nix, wallpaper.nix). Walker/elephant
-    # fueron eliminados por completo del proyecto (ver rofi.nix) — no
-    # viven ni aquí ni en Home Manager.
-
+    
     hyprlock # Bloqueo de pantalla (reemplaza swaylock)
     hypridle # Gestión de inactividad (reemplaza swayidle)
 

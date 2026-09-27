@@ -4,14 +4,24 @@
 -- dinámica vive aquí en Lua, según la filosofía Nix=declarativo/Lua=lógica
 -- del prompt original.
 --
--- ADVERTENCIA NO VERIFICADA: cmd_toggle_favorite() depende de parsear el
--- output de `awww query` para saber cuál es el wallpaper actual. No pude
--- confirmar el formato exacto de ese output contra una instalación real
--- de awww. Verifica esto la primera vez que pruebes `toggle-favorite` —
--- si falla, correr `awww query` a mano y ajustar el patrón de match.
+-- `awww` (antes `swww`, renombrado por el proyecto) confirmado como el
+-- comando correcto: `awww img`, `awww query -j`, `awww-daemon` son todos
+-- reales (ver `man awww`). No hay bug de nombre aquí.
 
 local cjson = require("cjson")
 local lfs = require("lfs")
+
+-- menu-common.lua vive en ~/.config/waybar/scripts, no junto a este
+-- archivo (~/.config/hypr/scripts) — solo lo usa la acción `pick`, así
+-- que se busca ahí explícitamente en vez del patrón de symlink de los
+-- menús de waybar.
+local ui
+do
+  local home = os.getenv("HOME") or ""
+  package.path = home .. "/.config/waybar/scripts/?.lua;" .. package.path
+  local ok, mod = pcall(require, "menu-common")
+  if ok then ui = mod end -- si falla, solo `pick` queda deshabilitada (ver cmd_pick)
+end
 
 local home = os.getenv("HOME")
 local wallpaper_dir = home .. "/Pictures/wallpapers/"
@@ -34,6 +44,7 @@ local function list_images()
       table.insert(images, wallpaper_dir .. file)
     end
   end
+  table.sort(images)
   return images
 end
 
@@ -57,6 +68,13 @@ local function save_favorites(favs)
   local f = io.open(favorites_file, "w")
   f:write(cjson.encode(favs))
   f:close()
+end
+
+local function is_favorite(favs, path)
+  for _, p in ipairs(favs) do
+    if p == path then return true end
+  end
+  return false
 end
 
 local function set_wallpaper(path)
@@ -107,13 +125,28 @@ local function cmd_favorite_random()
   end
 end
 
+-- `awww query -j` devuelve JSON por namespace: { "<namespace>": [ { name,
+-- width, height, scale, displaying: { image: "..." } o { color: "..." } },
+-- ... ] } (confirmado en `man awww-query`). Con varios monitores se toma
+-- el primer output con una imagen (todos deberían coincidir, ya que
+-- set_wallpaper() nunca usa -o para fijar por-monitor).
 local function get_current_wallpaper()
-  local handle = io.popen("awww query 2>/dev/null")
+  local handle = io.popen("awww query -j 2>/dev/null")
   local result = handle:read("*a")
   handle:close()
-  -- Patrón sin verificar, ver advertencia arriba.
-  local path = result:match("image: (.-)\n") or result:match("image: (.*)$")
-  return path
+  if not result or result == "" then return nil end
+
+  local ok, decoded = pcall(cjson.decode, result)
+  if not ok then return nil end
+
+  for _, outputs in pairs(decoded) do
+    for _, out in ipairs(outputs) do
+      if out.displaying and out.displaying.image then
+        return out.displaying.image
+      end
+    end
+  end
+  return nil
 end
 
 local function cmd_toggle_favorite()
@@ -137,6 +170,74 @@ local function cmd_toggle_favorite()
   save_favorites(favs)
 end
 
+-- ─── Selector interactivo (rofi) ────────────────────────────────────────────
+-- Enter aplica el wallpaper elegido; Alt+Enter alterna favorito sobre esa
+-- fila sin cerrar el menú (mismo patrón que el resto de los menús rofi).
+-- Usa las imágenes originales como icono: rofi las escala solas. Con
+-- carpetas grandes de imágenes muy pesadas, la primera apertura puede
+-- sentirse lenta — si eso pasa, la solución sería cachear miniaturas
+-- reducidas en state_dir, pero no se implementa todavía por mantenerlo
+-- simple hasta confirmar que hace falta.
+local function cmd_pick()
+  if not ui then
+    io.stderr:write("No se pudo cargar menu-common.lua (se buscó en ~/.config/waybar/scripts)\n")
+    os.exit(1)
+  end
+
+  local selected_path = nil
+  while true do
+    local images = list_images()
+    if #images == 0 then
+      ui.notify("Wallpaper", "No hay imágenes en " .. wallpaper_dir, { urgent = true })
+      return
+    end
+
+    local current = get_current_wallpaper()
+    local favs = load_favorites()
+
+    local items, selected_idx = {}, nil
+    for i, path in ipairs(images) do
+      local name = path:match("([^/]+)$") or path
+      local fav = is_favorite(favs, path)
+      local is_cur = (path == current)
+      items[i] = {
+        text = ui.row(fav and ui.icons.star or ui.icons.star_outline, name, is_cur),
+        icon_path = path,
+        path = path,
+        current = is_cur,
+      }
+      if selected_path and path == selected_path then selected_idx = i end
+    end
+
+    local item, idx, key = ui.select(items, {
+      prompt = "Wallpaper",
+      mesg = ui.mesg({ "Enter: aplicar · Alt+Enter: favorito" }),
+      alt = true,
+      show_icons = true,
+      selected = selected_idx,
+    })
+    if not item then return end
+
+    if key == "alt" then
+      local fav = is_favorite(favs, item.path)
+      if fav then
+        for i, p in ipairs(favs) do if p == item.path then table.remove(favs, i); break end end
+      else
+        table.insert(favs, item.path)
+      end
+      save_favorites(favs)
+      selected_path = item.path -- vuelve a abrir en la misma fila
+    else
+      if set_wallpaper(item.path) then
+        print("Wallpaper: " .. item.path)
+      else
+        ui.notify("Wallpaper", "`awww img` falló (¿awww-daemon corriendo?)", { urgent = true })
+      end
+      return
+    end
+  end
+end
+
 local action = arg[1]
 
 if action == "random" then
@@ -145,7 +246,9 @@ elseif action == "favorite-random" then
   cmd_favorite_random()
 elseif action == "toggle-favorite" then
   cmd_toggle_favorite()
+elseif action == "pick" then
+  cmd_pick()
 else
-  print("Uso: wallpaper.lua [random|favorite-random|toggle-favorite]")
+  print("Uso: wallpaper.lua [random|favorite-random|toggle-favorite|pick]")
   os.exit(1)
 end

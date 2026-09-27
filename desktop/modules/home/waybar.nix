@@ -69,6 +69,18 @@
     source = ./waybar/scripts/bluetooth-status.lua;
     executable = true;
   };
+  xdg.configFile."waybar/scripts/monitor-menu.lua" = {
+    source = ./waybar/scripts/monitor-menu.lua;
+    executable = true;
+  };
+  xdg.configFile."waybar/scripts/usb-menu.lua" = {
+    source = ./waybar/scripts/usb-menu.lua;
+    executable = true;
+  };
+  xdg.configFile."waybar/scripts/screenshot-menu.lua" = {
+    source = ./waybar/scripts/screenshot-menu.lua;
+    executable = true;
+  };
 
   programs.waybar = {
     enable = true;

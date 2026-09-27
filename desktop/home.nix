@@ -16,4 +16,10 @@
 
   programs.home-manager.enable = true;
   programs.vinegar.enable = true;
+
+  home.packages = with pkgs; [
+    swappy
+    dbeaver-bin
+    mongodb-atlas-cli
+  ];
 }

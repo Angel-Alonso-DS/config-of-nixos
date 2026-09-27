@@ -1,10 +1,3 @@
--- ============================================================
---  hyprland.lua — Fase 1
---  Reescrito desde cero (no había config previa real, solo el
---  ejemplo autogenerado con 4 líneas tocadas).
---  Deployado vía Home Manager como archivo plano — NO se genera
---  desde Nix, este es Lua real editado directamente.
--- ============================================================
 
 ------------------
 ---- MONITORS ----
@@ -23,23 +16,15 @@ hl.monitor({
 
 local terminal    = "kitty"
 local ideEditor    = "code"
-local fileManager  = "dolphin" -- ya viene instalado vía plasma6, no vía Hyprland;
--- "Abrir con" no funciona fuera de sesión Plasma (bug
--- conocido de nixpkgs), asociaciones se fijan con xdg-mime.
+local fileManager  = "dolphin"
 local browser      = "brave"
-local menu         = "rofi -show drun" -- Walker+elephant reemplazado por completo:
--- bugs confirmados sin arreglo posible de
--- nuestro lado (bluetooth power-on asimétrico,
--- sin provider de red). Decisión del usuario.
+local menu         = "rofi -show drun"
 
 
 -------------------
 ---- AUTOSTART ----
 -------------------
 
--- El archivo de prueba original SOLO lanzaba waybar. Sin hypridle no hay
--- gestión de suspensión/lock, sin swww-daemon no hay wallpaper daemon
--- corriendo. Ambos son requisitos que ya habíamos decidido para Fase 1.
 hl.on("hyprland.start", function()
     hl.exec_cmd("systemctl --user start waybar.service swaync.service hypridle.service cliphist-wipe.service cliphist.service")
     hl.exec_cmd("awww-daemon")
@@ -59,9 +44,6 @@ hl.env("XDG_MENU_PREFIX", "plasma-")
 ---- LOOK AND FEEL ----
 -----------------------
 
--- Gaps/bordes/blur del template original — sin tocar. Fase 3 (identidad
--- visual, paleta #85EDA4/#EDA485) es donde esto se rediseña a propósito,
--- no de paso aquí.
 hl.config({
     general = {
         gaps_in  = 5,
@@ -139,11 +121,6 @@ hl.config({
 
 hl.config({
     input = {
-        -- Corregido: el archivo de prueba traía "es" (España). El sistema
-        -- entero (services.xserver.xkb.layout en common.nix) usa "latam".
-        -- Dejar esto en "es" habría dado un layout de teclado distinto
-        -- dentro de Hyprland que en el resto del sistema — inconsistencia
-        -- real, no cosmética.
         kb_layout  = "latam",
         kb_variant = "",
         kb_model   = "",
@@ -245,8 +222,9 @@ hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("hyprlock"))
 hl.bind(mainMod .. " + D", hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/system-info-menu.lua"))
 
 -- Wallpaper: siguiente aleatorio / marcar-desmarcar el actual como favorito
-hl.bind(mainMod .. " + W",         hl.dsp.exec_cmd("lua ~/.config/hypr/scripts/wallpaper.lua random"))
+hl.bind(mainMod .. " + W",         hl.dsp.exec_cmd("lua ~/.config/hypr/scripts/wallpaper.lua pick"))
 hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("lua ~/.config/hypr/scripts/wallpaper.lua toggle-favorite"))
+hl.bind(mainMod .. " + CTRL + W", hl.dsp.exec_cmd("lua ~/.config/hypr/scripts/wallpaper.lua random"))
 
 -- Menús de Walker (red/bluetooth/energía) — ya confirmados funcionando
 -- desde Waybar, se agregan también por teclado. N y SHIFT+B/SHIFT+P
@@ -270,9 +248,11 @@ hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("sh -c 'cliphist list | rofi -dmenu -
 -- reales, no inventada. "copysave" = copia a portapapeles Y guarda
 -- archivo en ~/Pictures (o XDG_SCREENSHOTS_DIR si lo defines) en un
 -- solo comando.
-hl.bind("Print",         hl.dsp.exec_cmd("grimblast copysave area"))
-hl.bind("SHIFT + Print", hl.dsp.exec_cmd("grimblast copysave screen"))
+hl.bind("Print", hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/screenshot-menu.lua"))
+hl.bind("SHIFT + Print", hl.dsp.exec_cmd("grimblast copysave area"))
 
+hl.bind(mainMod .. " + U", hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/usb-menu.lua"))
+hl.bind(mainMod .. " + O", hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/monitor-menu.lua"))
 
 --------------------------------
 ---- WINDOWS AND WORKSPACES ----
