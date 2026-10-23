@@ -17,21 +17,6 @@ hl.monitor({
     scale    = "1",
 })
 
-hl.monitor({
-    output   = "HDMI-A-1",
-    mode     = "1920x1080@120",
-    position = "1920x0",
-    scale    = "1", 
-})
-
--- TV
--- hl.monitor({
---     output = "",
---     mode = "3840x2160@30",
---     position = "1920x0",
---     scale = "1"
---})
-
 ---------------------
 ---- MY PROGRAMS ----
 ---------------------
@@ -56,7 +41,7 @@ local menu         = "rofi -show drun" -- Walker+elephant reemplazado por comple
 -- gestión de suspensión/lock, sin swww-daemon no hay wallpaper daemon
 -- corriendo. Ambos son requisitos que ya habíamos decidido para Fase 1.
 hl.on("hyprland.start", function()
-    hl.exec_cmd("systemctl --user start waybar.service swaync.service hypridle.service cliphist.service")
+    hl.exec_cmd("systemctl --user start waybar.service swaync.service hypridle.service cliphist-wipe.service cliphist.service")
     hl.exec_cmd("awww-daemon")
     hl.exec_cmd("sh -c 'sleep 1 && lua ~/.config/hypr/scripts/wallpaper.lua random'")
 end)
@@ -68,6 +53,7 @@ end)
 
 hl.env("XCURSOR_SIZE", "24")
 hl.env("HYPRCURSOR_SIZE", "24")
+hl.env("XDG_MENU_PREFIX", "plasma-")
 
 
 -----------------------
@@ -79,11 +65,11 @@ hl.env("HYPRCURSOR_SIZE", "24")
 -- no de paso aquí.
 hl.config({
     general = {
-        gaps_in  = 5,
-        gaps_out = 5,
+        gaps_in  = 4,
+        gaps_out = 4,
         border_size = 1,
         col = {
-            active_border   = { colors = { "rgba(33ccffee)", "rgba(668fffee)" }, angle = 45 },
+            active_border   = { colors = { "rgba(68ddddee)", "rgba(33ccffee)" }, angle = 45 },
             inactive_border = "rgba(999999aa)",
         },
         resize_on_border = false,
@@ -92,7 +78,7 @@ hl.config({
     },
 
     decoration = {
-        rounding       = 10,
+        rounding       = 12,
         rounding_power = 2,
         active_opacity   = 1.0,
         inactive_opacity = 1.0,
@@ -188,7 +174,7 @@ hl.gesture({
 local mainMod = "SUPER"
 
 hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd(terminal))
-hl.bind(mainMod .. " + Q",      hl.dsp.window.close())
+hl.bind(mainMod .. " + SHIFT + Q",      hl.dsp.window.close())
 
 -- Corregido: el original pasaba un comando de shell que contenía sintaxis
 -- Lua como string ("hyprctl dispatch 'hl.dsp.exit()'"), lo cual no hace
@@ -257,9 +243,14 @@ hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = tr
 -- Bloqueo manual de pantalla (hyprlock ya está instalado desde Fase 1)
 hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("hyprlock"))
 
+hl.bind(mainMod .. " + D", hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/system-info-menu.lua"))
+
+
 -- Wallpaper: siguiente aleatorio / marcar-desmarcar el actual como favorito
-hl.bind(mainMod .. " + W",         hl.dsp.exec_cmd("lua ~/.config/hypr/scripts/wallpaper.lua random"))
+hl.bind(mainMod .. " + W",         hl.dsp.exec_cmd("lua ~/.config/hypr/scripts/wallpaper.lua pick"))
 hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("lua ~/.config/hypr/scripts/wallpaper.lua toggle-favorite"))
+hl.bind(mainMod .. " + CTRL + W", hl.dsp.exec_cmd("lua ~/.config/hypr/scripts/wallpaper.lua random"))
+
 
 -- Menús de Walker (red/bluetooth/energía) — ya confirmados funcionando
 -- desde Waybar, se agregan también por teclado. N y SHIFT+B/SHIFT+P
@@ -283,8 +274,11 @@ hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("sh -c 'cliphist list | rofi -dmenu -
 -- reales, no inventada. "copysave" = copia a portapapeles Y guarda
 -- archivo en ~/Pictures (o XDG_SCREENSHOTS_DIR si lo defines) en un
 -- solo comando.
-hl.bind("Print",         hl.dsp.exec_cmd("grimblast copysave area"))
-hl.bind("SHIFT + Print", hl.dsp.exec_cmd("grimblast copysave screen"))
+hl.bind("Print", hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/screenshot-menu.lua"))
+hl.bind("SHIFT + Print", hl.dsp.exec_cmd("grimblast copysave area"))
+
+hl.bind(mainMod .. " + U", hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/usb-menu.lua"))
+hl.bind(mainMod .. " + O", hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/monitor-menu.lua"))
 
 
 --------------------------------

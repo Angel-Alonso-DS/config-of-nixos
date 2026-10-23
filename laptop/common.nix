@@ -3,16 +3,14 @@
 {
   imports = [ ./hardware-configuration.nix ];
 
-  # === 1. Gestor de Arranque (GRUB) y Partición EFI ===
-  # Configuración diseñada para un dual boot sólido
   boot.loader = {
     grub = {
       enable = true;
       efiSupport = true;
-      efiInstallAsRemovable = true;   # Para máxima compatibilidad
-      device = "nodev";               # Clave para sistemas UEFI
-      useOSProber = true;             # Detecta Windows automáticamente
-      configurationLimit = 5;         # Limita las entradas en el menú
+      efiInstallAsRemovable = true;
+      device = "nodev";
+      useOSProber = true;
+      configurationLimit = 5;
     };
   };
 
@@ -68,10 +66,7 @@
     };
   };
 
-
-
-  # === 3. Usuario y Seguridad Básica ===
-  users.users.alonso = {         # Reemplaza NIXOS_USER con tu nombre
+  users.users.alonso = {
     isNormalUser = true;
     extraGroups = [
       "kvm"
@@ -83,12 +78,6 @@
     ];
     packages = with pkgs; [ tree ];
   };
-
-  # Permite a los usuarios del grupo 'wheel' usar sudo sin contraseña.
-  # security.sudo.extraRules = [{
-  #   groups = [ "wheel" ];
-  #   commands = [ { command = "ALL"; options = [ "NOPASSWD" ]; } ];
-  # }];
 
   time.timeZone = "America/Mexico_City";
   time.hardwareClockInLocalTime = true;
@@ -160,6 +149,7 @@
 
   hardware.bluetooth.enable = true;
 
+  services.xserver.enable = true;
   services.xserver.xkb.layout = "latam";
   console.useXkbConfig = true;
 
@@ -203,6 +193,8 @@
     # Bases de datos (servidores y clientes)
     mariadb
     postgresql     # si también quieres PostgreSQL
+    mongosh
+    mongodb-tools
 
     # Contenedores y virtualización
     docker
@@ -228,8 +220,11 @@
     ripgrep
     fd
     gdb
-    kdePackages.breeze-gtk
+
     darkly
+    kdePackages.breeze-gtk
+
+    scrcpy
   ];
 
   environment.localBinInPath = true;
@@ -262,9 +257,6 @@
     enable = true;
     nix-direnv.enable = true;
   };
-
-  qt.enable = true;
-
 
   services.dbus.enable = true;
 
@@ -321,8 +313,6 @@
         success_symbol = "[➜](bold green)";
         error_symbol = "[➜](bold red)";
       };
-
-      # package.disabled = true;
     };
   };
 
@@ -335,6 +325,23 @@
       obs-pipewire-audio-capture
       obs-vaapi
     ];
+  };
+
+  qt.enable = true;
+  qt.platformTheme = "kde";
+
+  environment.sessionVariables = {
+    XDG_MENU_PREFIX = "plasma-";
+  };
+
+  systemd.user.services.dbus-menu-prefix-fix = {
+    description = "Propaga XDG_MENU_PREFIX a D-Bus para compositores no-Plasma";
+    partOf = [ "graphical-session.target" ];
+    wantedBy = [ "graphical-session.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.dbus}/bin/dbus-update-activation-environment --systemd XDG_MENU_PREFIX";
+    };
   };
 
   system.stateVersion = "26.05"; # Did you read the comment?

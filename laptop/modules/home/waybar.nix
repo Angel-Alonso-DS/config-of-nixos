@@ -34,6 +34,9 @@
   # red/energía. Los "on-click" apuntaban a una ruta que nunca se
   # materializaba — por eso "no se mostraba nada", no era culpa de
   # Walker ni de los scripts en sí.
+  xdg.configFile."waybar/scripts/menu-common.lua" = {
+    source = ./waybar/scripts/menu-common.lua;
+  };
   xdg.configFile."waybar/scripts/network-menu.lua" = {
     source = ./waybar/scripts/network-menu.lua;
     executable = true;
@@ -58,8 +61,21 @@
     source = ./waybar/scripts/hotspot-menu.lua;
     executable = true;
   };
-  xdg.configFile."waybar/scripts/menu-common.lua" = {
-    source = ./waybar/scripts/menu-common.lua;
+  xdg.configFile."waybar/scripts/system-info-menu.lua" = {
+    source = ./waybar/scripts/system-info-menu.lua;
+    executable = true;
+  };
+  xdg.configFile."waybar/scripts/monitor-menu.lua" = {
+    source = ./waybar/scripts/monitor-menu.lua;
+    executable = true;
+  };
+  xdg.configFile."waybar/scripts/usb-menu.lua" = {
+    source = ./waybar/scripts/usb-menu.lua;
+    executable = true;
+  };
+  xdg.configFile."waybar/scripts/screenshot-menu.lua" = {
+    source = ./waybar/scripts/screenshot-menu.lua;
+    executable = true;
   };
 
   programs.waybar = {
@@ -75,7 +91,9 @@
         # separan visualmente, no el espacio en blanco.
         height = 0;
         width = 0;
-        margin = "0";
+        margin-top = 4;
+        margin-left = 4;
+        margin-right = 4;
         spacing = 0;
         mode = "dock";
         reload_style_on_change = true;

@@ -3,12 +3,12 @@
 {
   imports = [
     ./common.nix
-    ./jetbrains.nix
     ./plasma.nix
     ./hyprland.nix
+    ./jetbrains.nix
     ./gaming.nix
     ./virtual-machine.nix
-    # ./hotspost.nix # Comentado hasta solucionar el problema de red y hotspost
+    #./hotspost.nix
   ];
 
   nix.settings = {

@@ -9,7 +9,7 @@
         networks.wlo1 = {
           ssid = "ElManolo";
           authentication = {
-            mode = "wpa2-sha1";   # WPA2-PSK estándar, máxima compatibilidad
+            mode = "none";   # WPA2-PSK estándar, máxima compatibilidad
             wpaPasswordFile = "/etc/nixos/secrets/hotspot-psk"; # ver nota abajo
           };
         };

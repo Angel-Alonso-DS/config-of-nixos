@@ -33,6 +33,36 @@ local function meta_for(name)
   return META[name] or { label = name, icon = I.cog, order = 99 }
 end
 
+-- ─── Batería ────────────────────────────────────────────────────────────
+-- Se lee directo de /sys/class/power_supply, sin depender de `upower` (no
+-- siempre está instalado). En un equipo de escritorio sin batería, no hay
+-- ningún BAT*: se omite en silencio, no es un error.
+
+local STATUS_LABEL = {
+  Charging = "cargando", Discharging = "descargando",
+  Full = "cargada", ["Not charging"] = "conectada, sin cargar",
+}
+
+local function read_sys_file(path)
+  local f = io.open(path, "r")
+  if not f then return nil end
+  local v = f:read("l")
+  f:close()
+  return v
+end
+
+local function battery_status()
+  local h = io.popen("ls -d /sys/class/power_supply/BAT* 2>/dev/null")
+  local dir = h and h:read("l") or nil
+  if h then h:close() end
+  if not dir then return nil end -- sin batería (equipo de escritorio)
+
+  local capacity = tonumber(read_sys_file(dir .. "/capacity"))
+  if not capacity then return nil end
+  local status = read_sys_file(dir .. "/status")
+  return { percent = capacity, status = STATUS_LABEL[status] or status }
+end
+
 -- Lee perfiles y cuál está activo. Formato de `powerprofilesctl list`:
 --   * balanced:            (el asterisco marca el activo)
 --       CpuDriver: ...
@@ -103,6 +133,13 @@ local function main()
       state[#state + 1] = m.icon .. " " .. m.label
       if p.degraded then state[#state + 1] = "limitado: " .. p.degraded end
     end
+  end
+
+  local battery = battery_status()
+  if battery then
+    local txt = I.battery .. " " .. battery.percent .. "%"
+    if battery.status then txt = txt .. " · " .. battery.status end
+    table.insert(state, 1, txt)
   end
 
   local item = ui.select(items, {

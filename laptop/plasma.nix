@@ -7,7 +7,6 @@
   };
 
   services.desktopManager.plasma6.enable = true;
-  services.xserver.enable = true;
 
   # Configuración de portales para KDE Plasma
   xdg.portal = {
