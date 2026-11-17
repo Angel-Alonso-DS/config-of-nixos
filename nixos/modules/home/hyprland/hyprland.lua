@@ -1,14 +1,36 @@
+package.path = package.path .. ";" ..
+    os.getenv("HOME") ..
+    "/.config/hypr/plugins/split-monitor-workspaces/lua/?.lua"
+
+local smw = require("split-monitor-workspaces")
+
+smw.setup({
+    workspace_count = 5,
+    monitor_priority = { "DP-1", "HDMI-A-1" },
+    keep_focused = true,
+    enable_persistent_workspaces = true,
+})
 
 ------------------
 ---- MONITORS ----
 ------------------
 
 hl.monitor({
-  output   = "HDMI-A-1",
-  mode     = "1920x1080@120",
-  position = "0x0",
-  scale    = "1",
+  output    = "HDMI-A-1",
+  mode      = "1920x1080@120",
+  position  = "900x172",
+  scale     = 1,
 })
+
+
+hl.monitor({
+  output    = "DP-1",
+  mode      = "1600x900@60.00",
+  position  = "0x0",
+  scale     = 1,
+  transform = 3,
+})
+
 
 ---------------------
 ---- MY PROGRAMS ----
@@ -46,12 +68,12 @@ hl.env("XDG_MENU_PREFIX", "plasma-")
 
 hl.config({
     general = {
-        gaps_in  = 5,
-        gaps_out = 5,
+        gaps_in  = 4,
+        gaps_out = 4,
         border_size = 1,
         col = {
-            active_border   = { colors = { "rgba(33ccffee)", "rgba(668fffee)" }, angle = 45 },
-            inactive_border = "rgba(999999aa)",
+            active_border   = { colors = { "rgba(68ddddee)", "rgba(33ccffee)" }, angle = 45 },
+          inactive_border = "rgba(999999aa)",
         },
         resize_on_border = false,
         allow_tearing = false,
@@ -59,7 +81,7 @@ hl.config({
     },
 
     decoration = {
-        rounding       = 10,
+        rounding       = 12,
         rounding_power = 2,
         active_opacity   = 1.0,
         inactive_opacity = 1.0,
@@ -136,11 +158,11 @@ hl.config({
     },
 })
 
-hl.gesture({
-    fingers   = 3,
-    direction = "horizontal",
-    action    = "workspace",
-})
+-- hl.gesture({
+--     fingers   = 3,
+--     direction = "horizontal",
+--     action    = "workspace",
+-- })
 
 
 ---------------------
@@ -150,7 +172,7 @@ hl.gesture({
 local mainMod = "SUPER"
 
 hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd(terminal))
-hl.bind(mainMod .. " + Q",      hl.dsp.window.close())
+hl.bind(mainMod .. " + SHIFT + Q",      hl.dsp.window.close())
 
 -- Corregido: el original pasaba un comando de shell que contenía sintaxis
 -- Lua como string ("hyprctl dispatch 'hl.dsp.exit()'"), lo cual no hace
@@ -188,17 +210,28 @@ hl.bind(mainMod .. " + CTRL + right", hl.dsp.window.resize({ x = 20, y = 0, rela
 hl.bind(mainMod .. " + CTRL + up",    hl.dsp.window.resize({ x = 0, y = -20, relative = true }), { repeating = true })
 hl.bind(mainMod .. " + CTRL + down",  hl.dsp.window.resize({ x = 0, y = 20, relative = true }),  { repeating = true })
 
-for i = 1, 10 do
-    local key = i % 10
-    hl.bind(mainMod .. " + " .. key,         hl.dsp.focus({ workspace = i }))
-    hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }))
+-- for i = 1, 10 do
+--     local key = i % 10
+--     hl.bind(mainMod .. " + " .. key,         hl.dsp.focus({ workspace = i }))
+--     hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }))
+-- end
+
+for i = 1, smw.get_amount_of_workspaces() do
+    local n = tostring(i)
+
+    hl.bind(mainMod .. " +" .. n, smw.workspace(n))
+    hl.bind(
+        mainMod .. " + SHIFT +" .. n,
+        smw.move_to_workspace_silent(n)
+    )
 end
+
 
 hl.bind(mainMod .. " + S",         hl.dsp.workspace.toggle_special("magic"))
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:magic" }))
 
-hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
-hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))
+hl.bind(mainMod .. " + mouse_down", smw.cycle_workspaces("next"))
+hl.bind(mainMod .. " + mouse_up", smw.cycle_workspaces("prev"))
 
 hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true })
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })

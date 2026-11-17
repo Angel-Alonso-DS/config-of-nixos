@@ -107,6 +107,9 @@
     };
   };
 
+  programs.localsend.enable = true;
+  programs.localsend.openFirewall = true;
+
   environment.systemPackages = with pkgs; [
     lm_sensors
     vulkan-tools
@@ -122,6 +125,7 @@
     pciutils
     qalculate-qt
     brave
+    img2pdf
 
     vlc
 
@@ -143,6 +147,8 @@
 
     mariadb
     postgresql
+    mongosh
+    mongodb-tools
 
     docker
 
@@ -167,6 +173,8 @@
 
     darkly
     kdePackages.breeze-gtk
+
+    libreoffice-fresh
 
     scrcpy
   ];
