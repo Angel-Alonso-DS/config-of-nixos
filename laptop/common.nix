@@ -26,7 +26,11 @@
   boot.initrd.kernelModules = [ "nvidia" "nvidia_modeset" "nvidia_uvm" "nvidia_drm" ];
   boot.extraModulePackages = [ config.boot.kernelPackages.nvidia_x11 ];
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings = {
+    experimental-features = [ "nix-command" "flakes" ];
+    # Fuerza a usar conexiones más resilientes ante timeouts de red
+    connect-timeout = 10;
+  };
 
   nixpkgs.config = {
     allowUnfree = true;
@@ -75,6 +79,7 @@
       "input"
       "audio"
       "video"
+      "docker"
     ];
     packages = with pkgs; [ tree ];
   };
@@ -216,16 +221,24 @@
     lm_sensors
     htop
     btop
+    img2pdf
     fastfetch
     ripgrep
     fd
     gdb
 
+    onlyoffice-desktopeditors
+
     darkly
     kdePackages.breeze-gtk
 
     scrcpy
+
+    wgcf
+    wireguard-tools
   ];
+
+  programs.localsend.enable = true;
 
   environment.localBinInPath = true;
 
@@ -253,12 +266,30 @@
     icu
   ];
 
+  programs.firefox.enable = true;
+
   programs.direnv = {
     enable = true;
     nix-direnv.enable = true;
   };
 
+  services.ollama = {
+    enable = true;
+    # Ejemplo: cargar modelos específicos al inicio
+    # loadModels = [ "llama3.2:3b" ];
+  };   
+
   services.dbus.enable = true;
+
+  services.postgresql = {
+    enable = true;
+    package = pkgs.postgresql_16;
+    ensureDatabases = [ "mi_base_de_datos" ];
+    authentication = pkgs.lib.mkOverride 10 ''
+      #type database  DBuser  auth-method
+      local all       all     trust
+    '';
+  };
 
   services.mysql = {
     enable = true;
@@ -288,7 +319,14 @@
   virtualisation.docker = {
     enable = true;
     autoPrune.enable = true;
+    daemon.settings.features.cdi = true;
+    daemon.settings = {
+      dns = [ "1.1.1.1" "8.8.8.8" ];
+      registry-mirrors = [ "https://mirror.gcr.io" ];
+    };
   };
+
+  hardware.nvidia-container-toolkit.enable = true;
 
   programs.java = {
     enable = true;

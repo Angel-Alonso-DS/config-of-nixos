@@ -77,6 +77,13 @@
     source = ./waybar/scripts/screenshot-menu.lua;
     executable = true;
   };
+  xdg.configFile."waybar/scripts/toggle-visibility.sh" = {
+    text = ''
+      #!${pkgs.bash}/bin/bash
+      ${pkgs.procps}/bin/pkill --signal USR1 --full '/bin/waybar$' 2>/dev/null || true
+    '';
+    executable = true;
+  };
 
   programs.waybar = {
     enable = true;
@@ -91,7 +98,7 @@
         # separan visualmente, no el espacio en blanco.
         height = 0;
         width = 0;
-        margin-top = 4;
+        margin-top = 0;
         margin-left = 4;
         margin-right = 4;
         spacing = 0;
