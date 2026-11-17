@@ -11,7 +11,9 @@
    módulos propios (idle_inhibitor, custom-power) nunca se probaron bajo
    este reset — puede que pierdan algún estilo default. Probar y avisar. */
 
-@define-color main-bg      #0A131D;
+@define-color main-bg       alpha(#0A131D, 0.80);
+@define-color main-bg-solid #0A131D;
+@define-color border-c      alpha(#68DDDD, 0.60);
 @define-color accent       #68DDDD;
 @define-color main-fg      #DBF7F5;
 @define-color main-br      #6E8A86;
@@ -80,10 +82,13 @@ tooltip label {
 }
 
 #waybar {
-    background-color: @outline;
+    background-color: transparent;
 }
 #waybar > box {
-    margin: 4px;
+    margin: 0px;
+    padding: 6px 6px 6px;
+    border-bottom: 2px solid @border-c;
+    border-radius: 0px 0px 12px 12px;
     background-color: @main-bg;
 }
 
@@ -100,7 +105,7 @@ button:hover {
 tooltip {
     border: 2px solid @main-br;
     border-radius: 10px;
-    background-color: @main-bg;
+    background-color: @main-bg-solid;
 }
 tooltip > box {
     padding: 0 6px;
@@ -165,7 +170,7 @@ tooltip > box {
 #custom-distro {
     padding: 0 10px 0 5px;
     background-color: @accent;
-    color: @main-bg;
+    color: @main-bg-solid;
 }
 
 #custom-right_inv.1 {
@@ -173,6 +178,18 @@ tooltip > box {
 }
 #idle_inhibitor {
     background-color: @time;
+}
+
+#custom-usb {
+    background-color: @tone-a;
+}
+
+#custom-left_div.9 {
+    color: @tone-a;
+}
+
+#custom-left_inv.9 {
+    color: @tone-a;
 }
 
 #clock.time {

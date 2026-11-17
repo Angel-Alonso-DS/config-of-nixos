@@ -20,5 +20,18 @@
     swappy
     dbeaver-bin
     mongodb-atlas-cli
+    gh-s
   ];
+
+  programs.gh = {
+    enable = true;
+    settings = {
+      aliases = {
+        co = "pr checkout";
+        pv = "pr view";
+      };
+      git_protocol = "ssh";
+    };
+    extensions = [ pkgs.gh-s ];
+  };
 }

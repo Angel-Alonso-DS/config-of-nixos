@@ -86,9 +86,11 @@ tooltip label {
 }
 #waybar > box {
     margin: 0;
-    padding: 4px;
-    border: 2px solid @border-c;
-    border-radius: 12px;
+    padding: 6px 4px 6px;
+    border-style: solid;
+    border-color: @border-c;
+    border-width: 0px 1px 1px;
+    border-radius: 0px 0px 12px 12px;
     background-color: @main-bg;
 }
 
