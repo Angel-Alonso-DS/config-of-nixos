@@ -1,7 +1,9 @@
-{ pkgs, ... }:
+{ pkgs, inputs, ... }:
 
 {
   xdg.configFile."hypr/hyprland.lua".source = ./hyprland/hyprland.lua;
+
+  xdg.configFile."hypr/plugins/split-monitor-workspaces".source = inputs.split-monitor-workspaces;
 
   xdg.configFile."hypr/hypridle.conf".source = ./hyprland/hypridle.conf;
 

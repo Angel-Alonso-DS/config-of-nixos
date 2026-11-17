@@ -67,6 +67,9 @@ window {
     border-color:                transparent;
     cursor:                      "default";
 
+    border:                      1px;
+    border-color:                @border-colour;
+
     /* Fondo semi-transparente igual que el theme.rasi original
        (ajusta el último número: 0.85 = 85% opaco) */
     background-color:            rgba(10, 19, 29, 0.85);

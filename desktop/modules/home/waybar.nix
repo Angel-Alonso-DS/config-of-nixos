@@ -65,7 +65,7 @@
     source = ./waybar/scripts/system-info-menu.lua;
     executable = true;
   };
-    xdg.configFile."waybar/scripts/bluetooth-status.lua" = {
+  xdg.configFile."waybar/scripts/bluetooth-status.lua" = {
     source = ./waybar/scripts/bluetooth-status.lua;
     executable = true;
   };
@@ -88,6 +88,7 @@
 
     settings = {
       mainBar = {
+        output = "HDMI-A-1";
         layer = "top";
         position = "top";
         # height/width/margin/spacing en 0: el mecanismo de "bloques sin
@@ -95,7 +96,9 @@
         # separan visualmente, no el espacio en blanco.
         height = 0;
         width = 0;
-        margin = "0";
+        margin-top = 0;
+        margin-left = 0;
+        margin-right = 0;
         spacing = 0;
         mode = "dock";
         reload_style_on_change = true;
@@ -131,7 +134,9 @@
 
         modules-right = [
           "mpris"
+          "custom/left_div#1"
           "pulseaudio"
+          "custom/right_div#1"
           "custom/notification"
           "custom/power"
         ];
@@ -166,12 +171,18 @@
         # ---------- Workspaces ----------
         "hyprland/workspaces" = {
           format = "{icon}";
+
           format-icons = {
             active = "";
+            visible = "";
             default = "";
+            empty = "";
           };
-          persistent-workspaces = { "*" = 5; };
+
+          all-outputs = false;
           on-click = "activate";
+          on-scroll-up = "hyprctl dispatch split-cycleworkspaces -1";
+          on-scroll-down = "hyprctl dispatch split-cycleworkspaces +1";
         };
 
         "hyprland/window" = {
@@ -356,6 +367,78 @@
           format = "⏻";
           tooltip-format = "Menú de energía";
           on-click = "lua ~/.config/waybar/scripts/power-menu.lua";
+        };
+      };
+
+      secondaryBar = {
+        output = "DP-1";
+
+        layer = "top";
+        position = "top";
+
+        height = 0;
+        width = 0;
+
+        margin-top = 0;
+        margin-left = 0;
+        margin-right = 0;
+
+        spacing = 0;
+        mode = "dock";
+
+        modules-left = [
+          "custom/left_div#1"
+          "hyprland/workspaces"
+          "custom/right_div#1"
+        ];
+
+        modules-center = [
+          "hyprland/window"
+        ];
+
+        modules-right = [
+          "custom/monitor"
+          "custom/left_div#9"
+          "custom/usb"
+          "custom/left_inv#9"
+        ];
+
+        "custom/left_div#1"  = { format = ""; tooltip = false; };
+        "custom/right_div#1" = { format = ""; tooltip = false; };
+        "custom/left_div#9"  = { format = ""; tooltip = false; };
+        "custom/left_inv#9"  = { format = "▓▒"; tooltip = false; };
+
+        "hyprland/window" = {
+          format = "{title}";
+          max-length = 50;
+        };
+
+        "hyprland/workspaces" = {
+          format = "{icon}";
+
+          format-icons = {
+            active = "";
+            visible = "";
+            default = "";
+            empty = "";
+          };
+
+          all-outputs = false;
+          on-click = "activate";
+          on-scroll-up = "hyprctl dispatch split-cycleworkspaces -1";
+          on-scroll-down = "hyprctl dispatch split-cycleworkspaces +1";
+        };
+
+        "custom/monitor" = {
+          format = "󰍹 ";
+          tooltip = "Configuración de monitores";
+          on-click = "lua ~/.config/waybar/scripts/monitor-menu.lua";
+        };
+
+        "custom/usb" = {
+          format = "󰋊 ";
+          tooltip = "Administrar unidades USB";
+          on-click = "lua ~/.config/waybar/scripts/usb-menu.lua";
         };
       };
     };

@@ -215,6 +215,14 @@ local function cmd_pick()
       alt = true,
       show_icons = true,
       selected = selected_idx,
+      -- Rejilla de 4 columnas con miniaturas grandes, icono arriba del
+      -- nombre, en vez de la lista angosta por defecto. Ajusta `columns`
+      -- y `size` si prefieres más/menos miniaturas por fila o más grandes.
+      theme_str = "window { width: 50%; } "
+        .. "listview { columns: 4; lines: 3; flow: vertical; } "
+        .. "element { orientation: vertical; } "
+        .. "element-icon { size: 10em; } "
+        .. "element-text { horizontal-align: 0.5; }",
     })
     if not item then return end
 
