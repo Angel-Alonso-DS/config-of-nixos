@@ -1,6 +1,6 @@
 # PR 00 — Baseline del repositorio NixOS multi-host
 
-**Estado:** inventario de Git verificado; estado de ejecución de los equipos **pendiente**.
+**Estado:** inventario de Git verificado; identidad, generación actual, revisión, commit, bootloader, servicios seleccionados y sesión Hyprland registrados físicamente para ambos equipos. Plasma, bloqueo de pantalla, conectividad completa, rollback y la futura arquitectura multi-host siguen pendientes.
 **Fuente:** `Angel-Alonso-DS/config-of-nixos`, referencia `origin/main`, commit `64d6727ddf5ac85b27d68c87139470dcb2d69bb6`.
 **Alcance:** documentación y recolección de evidencia de solo lectura. Ningún cambio funcional en NixOS, Home Manager, bootloader, servicios o firewall.
 
@@ -95,14 +95,14 @@ El diseño visual de Rofi/Kitty y numerosos scripts son compartibles, pero Wayba
 
 ## 3. Riesgos conocidos, diferidos o sujetos a validación
 
-1. **Arranque:** no migrar GRUB ni editar la partición EFI durante este PR. La configuración versionada del desktop habilita systemd-boot; el cargador que arranca físicamente debe confirmarse durante el baseline. GRUB se migrará en una fase independiente y supervisada.
+1. **Arranque:** no migrar GRUB ni editar la partición EFI durante este PR. El desktop usa físicamente `systemd-boot 260.2` según la evidencia registrada; la laptop tiene una entrada UEFI de NixOS hacia `EFI/nixos/grubx64.efi`, además de Windows Boot Manager. La evidencia, sus límites y los pasos aún pendientes están en [HOST-VALIDATION.md](./HOST-VALIDATION.md). GRUB se migrará en el desktop únicamente en una fase independiente y supervisada (PR 06).
 2. **Servicios de bases de datos:** se observaron reglas específicas para MariaDB y autenticación local PostgreSQL `trust` en laptop. Registrar como deuda de seguridad, sin cambiarlas durante la refactorización arquitectónica.
 3. **GPU y multimedia:** OBS del desktop declara `cudaSupport = true` aunque su GPU indicada es Intel; comprobar antes de modularizar.
 4. **Duplicaciones:** se observan paquetes/opciones repetidos entre Home Manager y NixOS (por ejemplo, Kitty y partes de la configuración JetBrains/direnv).
 5. **Gestor de paquetes:** el desktop define `gradle_9`, la laptop `gradle`; no consolidar versiones sin comparar dependencias de proyectos.
 6. **Waybar/MPRIS:** conservar la ruta de diagnóstico del fallo SIGSEGV conocido; no modificar este módulo durante baseline.
 7. **Estado Git:** las referencias `origin/laptop`, `origin/desktop` y `origin/tests` son ancestros de `origin/main` en la comparación realizada; no fusionarlas automáticamente.
-8. **Reproducibilidad:** no existe Flake raíz; unificar el lock es trabajo de PR 01, no de PR 00.
+8. **Reproducibilidad:** no existe Flake raíz; unificar el lock es trabajo de PR 01, no de PR 00. Aunque ambos hosts siguen NixOS 26.05, sus revisiones Nixpkgs observadas difieren (`f3a73bc` en laptop y `ee48b14` en desktop). PR 01 debe evaluar compatibilidad y reconciliar el input/lock común antes de adoptar una sola revisión.
 9. **Datos persistentes y secretos:** no incorporarlos a Git ni recopilar contraseñas, claves, tokens o información privada en reportes.
 
 ## 4. Política arquitectónica aprobada
@@ -113,11 +113,12 @@ Consultar [DECISIONS.md](./DECISIONS.md). Resumen: laptop como referencia de dev
 
 La auditoría Git no puede determinar el estado activo de las dos máquinas. Deben recabarse **en laptop y desktop**, sin modificar nada:
 
-- Hostname, versión NixOS, enlace a generación activa y generaciones anteriores.
-- SHA/branch/status del checkout local (si existe) y discrepancias con `main`.
-- Modo de arranque EFI, filesystem de `/boot`, bootloader efectivamente usado y posibilidad de recuperación.
-- Estado de servicios fallidos, herramientas de desarrollo presentes y servicios seleccionados habilitados.
-- Evidencia de que Hyprland, Plasma, Waybar y redes funcionan en sesiones reales.
+- Hostname, versión NixOS y generación actual. Están registrados para ambos hosts en [HOST-VALIDATION.md](./HOST-VALIDATION.md); falta incorporar el detalle de las generaciones anteriores si fuese necesario para una recuperación posterior.
+- SHA/branch/status del checkout local (si existe) y discrepancias con `main`. Ambos checkouts reportaron `899b9fa`; el detalle de rama/estado se conserva en los registros locales, no en esta documentación saneada.
+- Modo de arranque EFI, filesystem de `/boot`, bootloader efectivamente usado y posibilidad de recuperación. La evidencia de bootloader y `/boot` ya recibida está registrada; faltan las comprobaciones de arranque y recuperación indicadas allí.
+- Estado de servicios fallidos, herramientas de desarrollo presentes y servicios seleccionados habilitados. Están registrados, incluidas las diferencias de PostgreSQL, Ollama, `podman` y `nvim`; `nix-direnv` ausente de `PATH` no implica una instalación defectuosa.
+- Evidencia de que Hyprland, Waybar, SwayNC, Hypridle, Rofi e Hyprlock están presentes en sesiones Wayland reales, junto con la geometría de monitores. Plasma y el bloqueo efectivo siguen pendientes; NetworkManager activo no prueba conectividad completa.
+- Validación de la arquitectura multi-host propuesta. Está fuera de alcance de PR 00 y no se realizará antes de PR 01.
 - Comprobación de contenido no versionado relevante, sin subir secretos.
 
 Usar [HOST-VALIDATION.md](./HOST-VALIDATION.md) y el script `scripts/collect-host-baseline.sh` de solo lectura. Los resultados son evidencia local; no se afirma haberlos recopilado o probado en los equipos.
@@ -128,8 +129,10 @@ Usar [HOST-VALIDATION.md](./HOST-VALIDATION.md) y el script `scripts/collect-hos
 - [x] Diferencias estructurales documentadas sin modificar módulos.
 - [x] Decisiones de arquitectura y restricciones registradas.
 - [x] Guía y script de recolección de datos locales preparados.
-- [ ] Recolección y revisión de resultados **reales** de ambos hosts.
-- [ ] Registro de una generación funcional y procedimiento de recuperación por host.
+- [x] Recolección y revisión de identidad, revisión, generación actual, commit, bootloader y unidades fallidas de ambos hosts.
+- [x] Referencias operativas de generación y procedimiento de recuperación documentado por host; prueba de rollback diferida porque requiere reinicio autorizado.
+- [x] Estados de servicios seleccionados y sesión Hyprland/Wayland registrados para ambos hosts.
+- [ ] Plasma, bloqueo efectivo, conectividad completa y rollback, diferidos por alcance o por requerir reinicio autorizado.
 - [ ] Revisión humana del PR de baseline antes de fusionar en `dev`.
 
 No afirmar que PR 00 está finalizado mientras falten las verificaciones físicas.

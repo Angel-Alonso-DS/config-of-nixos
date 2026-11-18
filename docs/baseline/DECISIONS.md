@@ -23,6 +23,13 @@
 - Seguridad: aplicar estándares/buenas prácticas existentes y registrar riesgos, sin aprovechar esta migración para rediseñar políticas de red, autenticación o servicios. No introducir nuevas exposiciones inseguras.
 - No alterar bases de datos ni otros datos persistentes durante la reorganización.
 
+## Preservación de escritorios
+
+- Hyprland seguirá siendo el entorno principal del propietario en ambos hosts.
+- KDE Plasma debe seguir disponible como sesión alternativa en ambos hosts, para ofrecer un escritorio familiar y personalizable a personas acostumbradas a Windows cuando se preste un equipo.
+- Se conservará la configuración de apariencia e integración KDE utilizada por Dolphin, incluso durante las sesiones de Hyprland.
+- PR 05 debe tratar estos puntos como requisitos de preservación. Esta decisión define el resultado esperado, pero no autoriza cambios funcionales durante PR 00.
+
 ## Condiciones de trabajo
 
 1. Crear cada rama nueva desde `dev` actualizado, no desde otra rama de implementación.
