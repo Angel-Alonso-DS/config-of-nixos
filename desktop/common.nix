@@ -1,5 +1,8 @@
 { config, lib, pkgs, ... }:
 
+let
+  development = import ../modules/system/development/base.nix { inherit pkgs; };
+in
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -115,11 +118,7 @@
     vulkan-tools
     mesa-demos
     kitty
-    uv
-    gcc
-    pkg-config
-    git
-    git-lfs
+  ] ++ development.core ++ [
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
     pciutils
@@ -129,32 +128,25 @@
 
     vlc
 
-    nodejs_22
-    pnpm
+  ] ++ development.node ++ [
 
-    jdk25
-    maven
+  ] ++ development.java ++ [
     gradle_9
 
-    android-studio
-    android-tools
+  ] ++ development.android ++ [
 
     godot_4
     pixieditor
 
-    php82
-    php82Packages.composer
+  ] ++ development.php ++ [
 
-    mariadb
-    postgresql
-    mongosh
-    mongodb-tools
+  ] ++ development.databaseClients ++ [
 
-    docker
+  ] ++ development.containers ++ [
 
-    python3
+  ] ++ development.python ++ [
 
-    vscode
+  ] ++ development.editor ++ [
 
     unrar
 
@@ -165,7 +157,7 @@
     btop
     fastfetch
     fd
-    gdb
+  ] ++ development.debug ++ [
 
     onlyoffice-desktopeditors
 
@@ -176,7 +168,7 @@
 
     libreoffice-fresh
 
-    scrcpy
+  ] ++ development.mobile ++ [
   ];
 
   environment.localBinInPath = true;
