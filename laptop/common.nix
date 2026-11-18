@@ -4,7 +4,11 @@ let
   development = import ../modules/system/development/base.nix { inherit pkgs; };
 in
 {
-  imports = [ ./hardware-configuration.nix ];
+  imports = [
+    ./hardware-configuration.nix
+    ../profiles/office.nix
+    ../profiles/multimedia.nix
+  ];
 
   boot.loader = {
     grub = {
@@ -173,10 +177,7 @@ in
     pciutils
     qalculate-qt
     brave
-
-    vlc
-
-  ] ++ development.node ++ [
+  ] ++ config.profiles._internal.multimediaVlc ++ development.node ++ [
 
     # Java (JDK para desarrollo móvil y backend)
   ] ++ development.java ++ [
@@ -200,10 +201,7 @@ in
 
   ] ++ development.python ++ [
 
-    kdePackages.kdenlive
-
-    pixieditor
-  ] ++ development.editor ++ [
+  ] ++ config.profiles._internal.multimediaVideoEditing ++ config.profiles._internal.multimediaImageEditing ++ development.editor ++ [
 
     vim
     unrar
@@ -219,7 +217,8 @@ in
     fd
   ] ++ development.debug ++ [
 
-    onlyoffice-desktopeditors
+    # Office profile packages stay at their original position in the system path.
+  ] ++ config.profiles._internal.officePackages ++ [
 
     darkly
     kdePackages.breeze-gtk
@@ -344,17 +343,6 @@ in
         error_symbol = "[➜](bold red)";
       };
     };
-  };
-
-  programs.obs-studio = {
-    enable = true;
-    package = pkgs.obs-studio.override { cudaSupport = true; };
-    plugins = with pkgs.obs-studio-plugins; [
-      wlrobs
-      obs-backgroundremoval
-      obs-pipewire-audio-capture
-      obs-vaapi
-    ];
   };
 
   qt.enable = true;
