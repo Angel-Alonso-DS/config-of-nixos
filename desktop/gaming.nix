@@ -8,16 +8,9 @@ let
   };
 in
 {
-  programs.steam = {
-    enable = true;
-    remotePlay.openFirewall = true;
-    dedicatedServer.openFirewall = true;
-    localNetworkGameTransfers.openFirewall = true;
-  };
+  imports = [ ../profiles/gaming.nix ];
 
   services.flatpak.enable = true;
-
-  hardware.xone.enable = true;
 
   networking.networkmanager.insertNameservers = [ "1.1.1.1" "8.8.8.8" "2606:4700:4700::1111" ];
   networking.resolvconf.extraOptions = [ "single-request-reopen" ];
@@ -28,10 +21,7 @@ in
   ];
 
   environment.systemPackages = with pkgs; [
-    prismlauncher
-    steam
-    gamescope
-    mangohud
+  ] ++ config.profiles._internal.gamingPackages ++ [
     heroic
   ];
 }

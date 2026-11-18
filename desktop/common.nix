@@ -4,10 +4,11 @@ let
   development = import ../modules/system/development/base.nix { inherit pkgs; };
 in
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  imports = [
+    ./hardware-configuration.nix
+    ../profiles/office.nix
+    ../profiles/multimedia.nix
+  ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -125,10 +126,7 @@ in
     qalculate-qt
     brave
     img2pdf
-
-    vlc
-
-  ] ++ development.node ++ [
+  ] ++ config.profiles._internal.multimediaVlc ++ development.node ++ [
 
   ] ++ development.java ++ [
     gradle_9
@@ -136,7 +134,7 @@ in
   ] ++ development.android ++ [
 
     godot_4
-    pixieditor
+  ] ++ config.profiles._internal.multimediaImageEditing ++ [
 
   ] ++ development.php ++ [
 
@@ -159,9 +157,7 @@ in
     fd
   ] ++ development.debug ++ [
 
-    onlyoffice-desktopeditors
-
-    kdePackages.kdenlive
+  ] ++ config.profiles._internal.officePackages ++ config.profiles._internal.multimediaVideoEditing ++ [
 
     darkly
     kdePackages.breeze-gtk
@@ -245,17 +241,6 @@ in
         error_symbol = "[✗](bold red)";
       };
     };
-  };
-
-  programs.obs-studio = {
-    enable = true;
-    package = pkgs.obs-studio.override { cudaSupport = true; };
-    plugins = with pkgs.obs-studio-plugins; [
-      wlrobs
-      obs-backgroundremoval
-      obs-pipewire-audio-capture
-      obs-vaapi
-    ];
   };
 
   qt.enable = true;
