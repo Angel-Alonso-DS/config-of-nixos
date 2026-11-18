@@ -10,16 +10,16 @@
 
     nixpkgs-desktop.url = "github:NixOS/nixpkgs/ee48b147c18c7de1e6ec97dc74792be42724bed1";
     home-manager-desktop = {
-      url = "github:nix-community/home-manager/24f8f8e786f87d6a818e1746cb2389bf922afdab";
+      url = "github:nix-community/home-manager/d4fd24667c8cbef124bb70a20380cab75ec8474d";
       inputs.nixpkgs.follows = "nixpkgs-desktop";
     };
 
     nix-snapd = {
-      url = "github:nix-community/nix-snapd";
+      url = "github:nix-community/nix-snapd/f7694a0e26d890e285137e1b726b1b44038805c4";
       inputs.nixpkgs.follows = "nixpkgs-desktop";
     };
 
-    bedrock-on-linux.url = "github:Wyze3306/BedrockOnLinux";
+    bedrock-on-linux.url = "github:Wyze3306/BedrockOnLinux/276ae7bd6172c588b7311cb70faf3145a0af3fd2";
 
     split-monitor-workspaces.url = "github:zjeffer/split-monitor-workspaces/release/0.55.x";
   };
