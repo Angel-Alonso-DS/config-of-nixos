@@ -3,7 +3,7 @@
 {
   imports = [
     ./common.nix
-    ./plasma.nix
+    ../modules/system/plasma.nix
     ./hyprland.nix
     # ./niri.nix
     ../modules/system/virtual-machine.nix
