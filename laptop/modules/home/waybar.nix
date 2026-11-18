@@ -38,15 +38,15 @@
     source = ./waybar/scripts/menu-common.lua;
   };
   xdg.configFile."waybar/scripts/network-menu.lua" = {
-    source = ./waybar/scripts/network-menu.lua;
+    source = ../../../modules/home/waybar/scripts/network-menu.lua;
     executable = true;
   };
   xdg.configFile."waybar/scripts/power-menu.lua" = {
-    source = ./waybar/scripts/power-menu.lua;
+    source = ../../../modules/home/waybar/scripts/power-menu.lua;
     executable = true;
   };
   xdg.configFile."waybar/scripts/bluetooth-menu.lua" = {
-    source = ./waybar/scripts/bluetooth-menu.lua;
+    source = ../../../modules/home/waybar/scripts/bluetooth-menu.lua;
     executable = true;
   };
   xdg.configFile."waybar/scripts/power-profile-menu.lua" = {
@@ -54,27 +54,27 @@
     executable = true;
   };
   xdg.configFile."waybar/scripts/audio-output-menu.lua" = {
-    source = ./waybar/scripts/audio-output-menu.lua;
+    source = ../../../modules/home/waybar/scripts/audio-output-menu.lua;
     executable = true;
   };
   xdg.configFile."waybar/scripts/hotspot-menu.lua" = {
-    source = ./waybar/scripts/hotspot-menu.lua;
+    source = ../../../modules/home/waybar/scripts/hotspot-menu.lua;
     executable = true;
   };
   xdg.configFile."waybar/scripts/system-info-menu.lua" = {
-    source = ./waybar/scripts/system-info-menu.lua;
+    source = ../../../modules/home/waybar/scripts/system-info-menu.lua;
     executable = true;
   };
   xdg.configFile."waybar/scripts/monitor-menu.lua" = {
-    source = ./waybar/scripts/monitor-menu.lua;
+    source = ../../../modules/home/waybar/scripts/monitor-menu.lua;
     executable = true;
   };
   xdg.configFile."waybar/scripts/usb-menu.lua" = {
-    source = ./waybar/scripts/usb-menu.lua;
+    source = ../../../modules/home/waybar/scripts/usb-menu.lua;
     executable = true;
   };
   xdg.configFile."waybar/scripts/screenshot-menu.lua" = {
-    source = ./waybar/scripts/screenshot-menu.lua;
+    source = ../../../modules/home/waybar/scripts/screenshot-menu.lua;
     executable = true;
   };
   xdg.configFile."waybar/scripts/toggle-visibility.sh" = {
