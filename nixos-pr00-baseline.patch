@@ -1,0 +1,331 @@
+diff --git a/docs/baseline/DECISIONS.md b/docs/baseline/DECISIONS.md
+new file mode 100644
+index 0000000..6d39053
+--- /dev/null
++++ b/docs/baseline/DECISIONS.md
+@@ -0,0 +1,48 @@
++# Decisiones congeladas — Arquitectura NixOS multi-host
++
++**Alcance:** especificación de diseño aprobada, sin ejecución de cambios.
++
++## Objetivo y límites
++
++- Un Flake raíz con dos outputs: `nixosConfigurations.nixos-alons` y `nixosConfigurations.nixos-desktop`.
++- Un `flake.lock` común, con dependencias específicas de host aisladas.
++- La laptop es la fuente de referencia del stack de desarrollo. Las herramientas exclusivas del desktop permanecen allí hasta promoverse explícitamente a un perfil compartido.
++- Una base global de herramientas, con versiones específicas de proyecto mediante `devShell`/`direnv`.
++- Herramientas/CLI compartidas; habilitación de servicios (MariaDB, PostgreSQL, Ollama, Docker, virtualización) por host.
++- Perfiles opcionales separados para gaming, office y multimedia, conservando aplicaciones actuales en el primer cambio.
++- Home Manager unificado con temas compartidos y overlays por equipo. Hyprland y KDE Plasma disponibles en ambos equipos.
++- Aislar configuraciones de hardware, GPU, firmware, bootloader, sensores, monitores, filesystem y UUIDs.
++- GRUB será el bootloader en ambos; desktop migrará desde systemd-boot en una fase **independiente** posterior a validar multi-host.
++- GRUB conservará NixOS, sus generaciones anteriores y otros sistemas operativos existentes cuando corresponda, sujeto a verificación física.
++- Cada implementación utiliza rama independiente `feature/XX-*` y PR propio dirigido a `dev`. `main` solo recibe promociones explícitas verificadas.
++- CI construye y valida ambos hosts si es viable; cada host valida nuevamente antes de activar.
++- Después de aprobación humana, cada host consulta periódicamente revisiones autorizadas mediante un servicio local `systemd`.
++- `boot` para cambios de sistema, riesgo elevado o incierto; `switch` solo para cambios expresamente clasificados de bajo riesgo. La clasificación debe basarse en efectos, no solo en nombre del archivo.
++- **Nunca reiniciar automáticamente.** Notificar y dejar que el usuario elija cuándo reiniciar.
++- Conservar generaciones, ejecutar health checks y ofrecer recuperación supervisada.
++- Seguridad: aplicar estándares/buenas prácticas existentes y registrar riesgos, sin aprovechar esta migración para rediseñar políticas de red, autenticación o servicios. No introducir nuevas exposiciones inseguras.
++- No alterar bases de datos ni otros datos persistentes durante la reorganización.
++
++## Condiciones de trabajo
++
++1. Crear cada rama nueva desde `dev` actualizado, no desde otra rama de implementación.
++2. Construir/validar las dos configuraciones antes de solicitar aprobación.
++3. Cambios funcionales de sistema y bootloader requieren fase y pruebas independientes.
++4. Ningún merge, promoción a `main`, aplicación automática en hosts o reinicio sin autorización y criterios de aceptación.
++5. Conservar un inventario de diferencias específicas por host para evitar perder funcionalidad al compartir archivos.
++
++## Secuencia prevista
++
++| PR | Rama | Objetivo |
++| --- | --- | --- |
++| 00 | `feature/00-baseline` | Inventario, decisiones, guías y baseline físico |
++| 01 | `feature/01-multi-host-flake` | Flake raíz y lock común sin cambios funcionales |
++| 02 | `feature/02-shared-modules` | Sistema y Home Manager compartidos |
++| 03 | `feature/03-development-profiles` | Development y servicios por host |
++| 04 | `feature/04-optional-profiles` | Gaming, office y multimedia |
++| 05 | `feature/05-desktop-environment` | Hyprland/Waybar y hardware |
++| 06 | `feature/06-grub-migration` | GRUB en desktop, operación supervisada |
++| 07 | `feature/07-automated-deployment` | CI, validación y distribución |
++| 08 | `feature/08-recovery` | Activación y recuperación supervisada |
++
++Esta tabla define objetivos, no autoriza cambios ni pruebas de activación.
+diff --git a/docs/baseline/HOST-VALIDATION.md b/docs/baseline/HOST-VALIDATION.md
+new file mode 100644
+index 0000000..f039595
+--- /dev/null
++++ b/docs/baseline/HOST-VALIDATION.md
+@@ -0,0 +1,47 @@
++# Recolección de baseline físico — Laptop y desktop
++
++**Estado:** pendiente de ejecutar en ambos equipos. Este documento no contiene resultados inventados.
++
++## Ejecución de solo lectura
++
++Desde la raíz de una copia local del repositorio, ejecutar:
++
++```bash
++bash -n scripts/collect-host-baseline.sh
++bash scripts/collect-host-baseline.sh .
++```
++
++El script no usa `sudo`, no modifica archivos ni servicios, no ejecuta `nixos-rebuild switch`, no descarga paquetes y escribe únicamente a stdout. Si hay un comando ausente, lo señala y continúa. La recolección se puede repetir con la otra máquina.
++
++**Privacidad:** antes de compartir la salida, revisar y ocultar nombres de proyectos privados o rutas personales que aparezcan en `git status`. No adjuntar claves, contraseñas, tokens ni contenidos de archivos de secretos. Las salidas no se suben automáticamente al repositorio.
++
++## Plantilla por equipo
++
++| Dato | `nixos-alons` | `nixos-desktop` |
++| --- | --- | --- |
++| Hostname real | Pendiente | Pendiente |
++| NixOS y kernel activos | Pendiente | Pendiente |
++| Generación actual y generaciones anteriores | Pendiente | Pendiente |
++| SHA local / estado Git | Pendiente | Pendiente |
++| Modo UEFI | Pendiente | Pendiente |
++| Tipo filesystem de `/boot` | Pendiente | Pendiente |
++| Bootloader efectivo | Pendiente | Pendiente |
++| Servicios fallidos | Pendiente | Pendiente |
++| Servicios activos elegidos | Pendiente | Pendiente |
++| CLI del stack de desarrollo presentes | Pendiente | Pendiente |
++| Hyprland / Waybar funcional | Pendiente | Pendiente |
++| Plasma funcional | Pendiente | Pendiente |
++| Método de recuperación probado | Pendiente | Pendiente |
++
++## Comprobaciones manuales adicionales
++
++1. Confirmar en la **laptop** si el menú GRUB arranca la generación actual y permite seleccionar generaciones anteriores; no cambiar opciones ni entradas.
++2. Confirmar en el **desktop** qué cargador inicia realmente la sesión y si existe una forma de recuperación independiente antes de preparar la futura migración a GRUB.
++3. Confirmar que los monitores y su geometría corresponden a la configuración activa en el escritorio.
++4. Comprobar que las unidades de bases de datos y Docker que aparecen activas en Git corresponden a las del sistema real. No abrir puertos ni modificar permisos.
++5. Comprobar sesiones Hyprland y KDE Plasma en ambos hosts, incluyendo Waybar, Rofi, notificaciones y bloqueo de pantalla, sin alterar configuración.
++6. Revisar cambios locales no versionados: proteger datos importantes; no copiar archivos de secretos a Git.
++
++## Interpretación del resultado
++
++El baseline físico se puede aprobar solo si se conoce cómo volver a una generación estable en cada host y si se han documentado las discrepancias entre configuración versionada y activa. **No sustituye las builds del PR 01 ni las pruebas posteriores de GRUB.**
+diff --git a/docs/baseline/README.md b/docs/baseline/README.md
+new file mode 100644
+index 0000000..1529db5
+--- /dev/null
++++ b/docs/baseline/README.md
+@@ -0,0 +1,135 @@
++# PR 00 — Baseline del repositorio NixOS multi-host
++
++**Estado:** inventario de Git verificado; estado de ejecución de los equipos **pendiente**.
++**Fuente:** `Angel-Alonso-DS/config-of-nixos`, rama `main`, commit `64d6727ddf5ac85b27d68c87139470dcb2d69bb6`.
++**Alcance:** documentación y recolección de evidencia de solo lectura. Ningún cambio funcional en NixOS, Home Manager, bootloader, servicios o firewall.
++
++> IMPORTANTE: Las afirmaciones de este documento describen el código versionado en Git en el commit indicado; **no** prueban qué generación está activa en cada equipo.
++
++## 1. Inventario del árbol
++
++El árbol recursivo de `main` contiene **100 archivos rastreados**:
++
++| Grupo | Archivos |
++| --- | ---: |
++| `laptop/` | 41 |
++| `desktop/` | 42 |
++| Otros (wallpapers y `.gitignore`) | 17 |
++
++Al comparar rutas relativas `laptop/` ↔ `desktop/` utilizando SHA de los blobs Git:
++
++| Clasificación | Pares o archivos |
++| --- | ---: |
++| Pares idénticos | 25 pares |
++| Pares con contenido diferente | 14 pares |
++| Exclusivos de laptop | 2 archivos |
++| Exclusivos de desktop | 3 archivos |
++
++**Los 25 pares idénticos** son:
++
++- `jetbrains.nix`
++- `plasma.nix`
++- `virtual-machine.nix`
++- `modules/home/hyprland/hyprlock.conf`
++- `modules/home/kitty.nix`
++- `modules/home/kitty/current-theme.conf`
++- `modules/home/kitty/kitty.conf`
++- `modules/home/notifications.nix`
++- `modules/home/notifications/style.css`
++- `modules/home/rofi.nix`
++- `modules/home/rofi/shared/colors.rasi`
++- `modules/home/rofi/shared/fonts.rasi`
++- `modules/home/rofi/theme-mod.rasi`
++- `modules/home/rofi/theme.rasi`
++- `modules/home/wallpaper.nix`
++- `modules/home/wallpaper/wallpaper.lua`
++- `modules/home/waybar/scripts/audio-output-menu.lua`
++- `modules/home/waybar/scripts/bluetooth-menu.lua`
++- `modules/home/waybar/scripts/hotspot-menu.lua`
++- `modules/home/waybar/scripts/monitor-menu.lua`
++- `modules/home/waybar/scripts/network-menu.lua`
++- `modules/home/waybar/scripts/power-menu.lua`
++- `modules/home/waybar/scripts/screenshot-menu.lua`
++- `modules/home/waybar/scripts/system-info-menu.lua`
++- `modules/home/waybar/scripts/usb-menu.lua`
++
++**Los 14 pares diferentes** son:
++
++- `common.nix`
++- `configuration.nix`
++- `flake.nix`
++- `gaming.nix`
++- `hardware-configuration.nix`
++- `home.nix`
++- `hyprland.nix`
++- `modules/home/hyprland-loader.nix`
++- `modules/home/hyprland/hypridle.conf`
++- `modules/home/hyprland/hyprland.lua`
++- `modules/home/waybar.nix`
++- `modules/home/waybar/scripts/menu-common.lua`
++- `modules/home/waybar/scripts/power-profile-menu.lua`
++- `modules/home/waybar/style.css`
++
++**Solo laptop:** `flake.lock`, `hotspost.nix`.
++**Solo desktop:** `modules/home/waybar/scripts/bluetooth-status.lua`, `niri.nix`, `roblox-dev.nix`.
++
++Una coincidencia de SHA significa igualdad exacta del contenido versionado, **no** garantía de comportamiento igual entre hosts.
++
++## 2. Estructura actual y diferencias funcionales
++
++| Área | `nixos-alons` (laptop) | `nixos-desktop` |
++| --- | --- | --- |
++| Flake | `laptop/flake.nix` | `desktop/flake.nix` |
++| Flake lock rastreado | `laptop/flake.lock` | No existe `desktop/flake.lock` en este commit |
++| Home Manager | Integrado en Flake | Integrado en Flake |
++| Bootloader según código | GRUB con UEFI | systemd-boot con EFI |
++| Hardware específico | AMD + NVIDIA, pantalla interna | Intel UHD, dos monitores |
++| Estado de escritorios | Hyprland y KDE Plasma importados | Hyprland y KDE Plasma importados |
++| Dependencias Flake exclusivas | — | `nix-snapd`, `bedrock-on-linux`, `split-monitor-workspaces` |
++| Desarrollo adicional | `gh-s`, GitHub CLI, Ollama, servicios de BD | Antigravity, Vinegar, Roblox Studio, snapd |
++| Almacenamiento adicional | — | Dos montajes adicionales en `configuration.nix` |
++
++En `laptop/common.nix` hay herramientas de desarrollo, utilidades generales, servicios y opciones NVIDIA mezcladas. `desktop/common.nix` también mezcla estas responsabilidades y posee diferencias de paquetes, servicios y opciones de escritorio. Estas diferencias deberán conservarse al crear módulos comunes.
++
++El diseño visual de Rofi/Kitty y numerosos scripts son compartibles, pero Waybar y Hyprland **no** pueden reemplazarse literalmente entre equipos: cambian la configuración de monitores, sensores de temperatura, workspaces y plugins. `menu-common.lua` difiere y la versión de laptop incluye soporte para `opts.theme_str`; debe reconciliarse con pruebas de los menús.
++
++## 3. Riesgos conocidos, diferidos o sujetos a validación
++
++1. **Arranque:** no migrar GRUB ni editar la partición EFI durante este PR. El desktop usa actualmente systemd-boot según el código; GRUB se migrará en una fase independiente y supervisada.
++2. **Servicios de bases de datos:** se observaron reglas específicas para MariaDB y autenticación local PostgreSQL `trust` en laptop. Registrar como deuda de seguridad, sin cambiarlas durante la refactorización arquitectónica.
++3. **GPU y multimedia:** OBS del desktop declara `cudaSupport = true` aunque su GPU indicada es Intel; comprobar antes de modularizar.
++4. **Duplicaciones:** se observan paquetes/opciones repetidos entre Home Manager y NixOS (por ejemplo, Kitty y partes de la configuración JetBrains/direnv).
++5. **Gestor de paquetes:** el desktop define `gradle_9`, la laptop `gradle`; no consolidar versiones sin comparar dependencias de proyectos.
++6. **Waybar/MPRIS:** conservar la ruta de diagnóstico del fallo SIGSEGV conocido; no modificar este módulo durante baseline.
++7. **Estado Git:** las ramas `laptop`, `desktop` y `tests` están detrás de `main` en la comparación realizada; no fusionarlas automáticamente.
++8. **Reproducibilidad:** no existe Flake raíz; unificar el lock es trabajo de PR 01, no de PR 00.
++9. **Datos persistentes y secretos:** no incorporarlos a Git ni recopilar contraseñas, claves, tokens o información privada en reportes.
++
++## 4. Política arquitectónica aprobada
++
++Consultar [DECISIONS.md](./DECISIONS.md). Resumen: laptop como referencia de development, base compartida y perfiles por host, `devShell`/`direnv`, servicios independientes, Home Manager compartido con overlays, gaming/office/multimedia opcionales, Hyprland + KDE Plasma en ambos, GRUB objetivo, CI y aprobación manual, despliegue local por `systemd`, `boot` predeterminado para cambios de sistema y reinicio siempre manual.
++
++## 5. Qué falta para completar realmente el baseline
++
++La auditoría Git no puede determinar el estado activo de las dos máquinas. Deben recabarse **en laptop y desktop**, sin modificar nada:
++
++- Hostname, versión NixOS, enlace a generación activa y generaciones anteriores.
++- SHA/branch/status del checkout local (si existe) y discrepancias con `main`.
++- Modo de arranque EFI, filesystem de `/boot`, bootloader efectivamente usado y posibilidad de recuperación.
++- Estado de servicios fallidos, herramientas de desarrollo presentes y servicios seleccionados habilitados.
++- Evidencia de que Hyprland, Plasma, Waybar y redes funcionan en sesiones reales.
++- Comprobación de contenido no versionado relevante, sin subir secretos.
++
++Usar [HOST-VALIDATION.md](./HOST-VALIDATION.md) y el script `scripts/collect-host-baseline.sh` de solo lectura. Los resultados son evidencia local; no se afirma haberlos recopilado o probado en los equipos.
++
++## 6. Criterios de aceptación de PR 00
++
++- [x] Inventario de archivos Git versionados y clasificación SHA de pares.
++- [x] Diferencias estructurales documentadas sin modificar módulos.
++- [x] Decisiones de arquitectura y restricciones registradas.
++- [x] Guía y script de recolección de datos locales preparados.
++- [ ] Recolección y revisión de resultados **reales** de ambos hosts.
++- [ ] Registro de una generación funcional y procedimiento de recuperación por host.
++- [ ] Revisión humana del PR de baseline antes de fusionar en `dev`.
++
++No afirmar que PR 00 está finalizado mientras falten las verificaciones físicas.
+diff --git a/scripts/collect-host-baseline.sh b/scripts/collect-host-baseline.sh
+new file mode 100755
+index 0000000..5ec8f48
+--- /dev/null
++++ b/scripts/collect-host-baseline.sh
+@@ -0,0 +1,77 @@
++#!/usr/bin/env bash
++# Solo lectura. No usa sudo ni cambia la configuración del sistema.
++set -u
++set -o pipefail
++
++repo_root="${1:-$PWD}"
++
++heading() { printf '\n== %s ==\n' "$1"; }
++report_cmd() {
++  local label="$1"
++  shift
++  printf '%s: ' "$label"
++  if ! command -v "$1" >/dev/null 2>&1; then
++    printf '(comando no disponible: %s)\n' "$1"
++    return 0
++  fi
++  "$@" 2>&1 || printf '(no se pudo consultar)\n'
++}
++
++heading 'Identificación'
++report_cmd hostname hostnamectl --static
++report_cmd nixos-version nixos-version
++report_cmd kernel uname -r
++report_cmd current-system readlink -f /run/current-system
++
++heading 'Git local (ningún push, pull o modificación)'
++if command -v git >/dev/null 2>&1 && git -C "$repo_root" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
++  printf 'checkout: %s\n' "$repo_root"
++  git_sha="$(git -C "$repo_root" rev-parse --verify HEAD 2>/dev/null || true)"
++  printf 'HEAD: %s\n' "${git_sha:-sin commits}"
++  git -C "$repo_root" branch --show-current || true
++  git -C "$repo_root" status --short || true
++else
++  printf 'No se encontró un checkout Git en: %s\n' "$repo_root"
++fi
++
++heading 'Arranque (sin cambiar entradas EFI)'
++if [[ -d /sys/firmware/efi ]]; then
++  printf 'UEFI: sí\n'
++else
++  printf 'UEFI: no detectado\n'
++fi
++if command -v findmnt >/dev/null 2>&1; then
++  printf 'Filesystem /boot: '
++  findmnt --noheadings --output FSTYPE --target /boot || true
++fi
++printf 'Nota: el filesystem no identifica por sí solo el bootloader activo.\n'
++
++heading 'Generaciones NixOS'
++report_cmd generations nixos-rebuild list-generations
++
++heading 'Unidades fallidas (solo consulta)'
++report_cmd system-failed systemctl --failed --no-pager --plain
++if command -v systemctl >/dev/null 2>&1; then
++  printf '\nServicios de usuario fallidos:\n'
++  systemctl --user --failed --no-pager --plain 2>&1 || printf '(bus de usuario no disponible)\n'
++fi
++
++heading 'Servicios seleccionados (estado de habilitación)'
++if command -v systemctl >/dev/null 2>&1; then
++  for unit in NetworkManager.service sshd.service display-manager.service docker.service mysql.service postgresql.service ollama.service libvirtd.service; do
++    status="$(systemctl is-enabled "$unit" 2>/dev/null || true)"
++    printf '%-28s %s\n' "$unit" "${status:-desconocido/no instalado}"
++  done
++fi
++
++heading 'Herramientas development (presencia, no versiones de proyecto)'
++for cmd in git git-lfs nix direnv nix-direnv python3 uv node pnpm java javac mvn gradle php composer gcc pkg-config docker podman psql mariadb mongosh adb scrcpy code nvim; do
++  if command -v "$cmd" >/dev/null 2>&1; then
++    printf '%-14s presente\n' "$cmd"
++  else
++    printf '%-14s no encontrado en PATH\n' "$cmd"
++  fi
++done
++
++heading 'Final'
++printf 'Este informe contiene solo consultas. Revisar rutas o nombres privados antes de compartirlo.\n'
