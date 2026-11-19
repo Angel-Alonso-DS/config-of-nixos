@@ -1,0 +1,73 @@
+name: Nix validation
+
+on:
+  pull_request:
+    branches: [dev, main]
+  push:
+    branches: [dev, main]
+
+permissions:
+  contents: read
+
+jobs:
+  flake-check:
+    name: flake-check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Test candidate detection
+        run: python3 -m unittest discover -s tests -p 'test_check_nixos_candidate.py' -v
+      - uses: cachix/install-nix-action@75c75c31ebece974e48ebc36b4ad125bd97bd97b # v31.11.3
+        with:
+          enable_kvm: false
+          set_as_trusted_user: false
+      - name: Check flake
+        run: |
+          nix --version
+          time nix flake check --no-build --no-update-lock-file --show-trace
+      - name: Disk space
+        if: always()
+        run: df -h
+
+  build-laptop:
+    name: build-laptop
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: cachix/install-nix-action@75c75c31ebece974e48ebc36b4ad125bd97bd97b # v31.11.3
+        with:
+          enable_kvm: false
+          set_as_trusted_user: false
+      - name: Build laptop
+        run: |
+          nix --version
+          time nix build --no-link --no-update-lock-file --show-trace .#nixosConfigurations.nixos-alons.config.system.build.toplevel
+      - name: Disk space
+        if: always()
+        run: df -h
+
+  build-desktop:
+    name: build-desktop
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: cachix/install-nix-action@75c75c31ebece974e48ebc36b4ad125bd97bd97b # v31.11.3
+        with:
+          enable_kvm: false
+          set_as_trusted_user: false
+      - name: Build desktop
+        run: |
+          nix --version
+          time nix build --no-link --no-update-lock-file --show-trace .#nixosConfigurations.nixos-desktop.config.system.build.toplevel
+      - name: Disk space
+        if: always()
+        run: df -h

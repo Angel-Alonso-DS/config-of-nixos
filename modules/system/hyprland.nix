@@ -1,0 +1,98 @@
+{ pkgs
+, nixosTags ? [ ]
+, sessionVariables ? { }
+, extraPackagesBeforePlayerctl ? [ ]
+, extraPackagesAfterPavucontrol ? [ ]
+, extraPackagesAfterNetworkmanagerapplet ? [ ]
+, extraPackagesAfterHyprpicker ? [ ]
+, ...
+}:
+(if nixosTags == [ ] then { } else { system.nixos.tags = nixosTags; }) // {
+  programs.hyprland = {
+    enable = true;
+    withUWSM = true;
+    portalPackage = pkgs.xdg-desktop-portal-hyprland;
+    xwayland.enable = true;
+  };
+
+  xdg.portal = {
+    enable = true;
+    extraPortals = [
+      pkgs.xdg-desktop-portal-gtk
+    ];
+    configPackages = [
+      pkgs.xdg-desktop-portal-hyprland
+    ];
+    config = {
+      hyprland = {
+        default = [ "hyprland" "gtk" ];
+        "org.freedesktop.impl.portal.AppChooser" = [ "kde" ];
+      };
+    };
+  };
+
+  environment.sessionVariables = {
+    NIXOS_OZONE_WL = "1";
+    MOZ_ENABLE_WAYLAND = "1";
+    QT_QPA_PLATFORM = "wayland;xcb";
+    GDK_BACKEND = "wayland,x11";
+  } // sessionVariables;
+
+  environment.systemPackages = with pkgs;
+    [
+      waybar
+      jq
+
+      hyprlock
+      hypridle
+
+      wl-clipboard
+      cliphist
+
+      grimblast
+      grim
+      slurp
+    ]
+    ++ extraPackagesBeforePlayerctl
+    ++ [
+      playerctl
+      pavucontrol
+    ]
+    ++ extraPackagesAfterPavucontrol
+    ++ [
+      networkmanagerapplet
+    ]
+    ++ extraPackagesAfterNetworkmanagerapplet
+    ++ [
+      hyprpicker
+    ]
+    ++ extraPackagesAfterHyprpicker
+    ++ [
+      pipewire
+      kdePackages.kio-extras
+      kdePackages.kdegraphics-thumbnailers
+    ];
+
+  xdg.mime.enable = true;
+  xdg.menus.enable = true;
+
+  environment.etc."/xdg/menus/applications.menu".text = builtins.readFile "${pkgs.kdePackages.plasma-workspace}/etc/xdg/menus/plasma-applications.menu";
+
+  security.polkit.enable = true;
+
+  security.pam.services.hyprlock = { };
+
+  systemd.user.services.polkit-kde-authentication-agent-1 = {
+    description = "polkit-kde-authentication-agent-1";
+    wantedBy = [ "graphical-session.target" ];
+    wants = [ "graphical-session.target" ];
+    after = [ "graphical-session.target" ];
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = "${pkgs.kdePackages.polkit-kde-agent-1}/libexec/polkit-kde-authentication-agent-1";
+      Restart = "on-failure";
+      RestartSec = 1;
+      TimeoutStopSec = 10;
+    };
+  };
+}

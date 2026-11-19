@@ -2,12 +2,12 @@
 
 {
   imports = [
-    ./modules/home/kitty.nix
+    ../modules/home/kitty.nix
     ./modules/home/hyprland-loader.nix
     ./modules/home/waybar.nix
-    ./modules/home/rofi.nix
-    ./modules/home/notifications.nix
-    ./modules/home/wallpaper.nix
+    ../modules/home/rofi.nix
+    ../modules/home/notifications.nix
+    ../modules/home/wallpaper.nix
   ];
 
   home.username = "alonso";

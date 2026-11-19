@@ -1,7 +1,14 @@
 { config, lib, pkgs, ... }:
 
+let
+  development = import ../modules/system/development/base.nix { inherit pkgs; };
+in
 {
-  imports = [ ./hardware-configuration.nix ];
+  imports = [
+    ./hardware-configuration.nix
+    ../profiles/office.nix
+    ../profiles/multimedia.nix
+  ];
 
   boot.loader = {
     grub = {
@@ -166,52 +173,35 @@
     iproute2
     iw
     kitty
-    uv
-    gcc
-    pkg-config
-    git            # Necesario para clonar tu configuración
-    git-lfs
+  ] ++ development.core ++ [
     pciutils
     qalculate-qt
     brave
-
-    vlc
-
-    nodejs_22
-    pnpm
+  ] ++ config.profiles._internal.multimediaVlc ++ development.node ++ [
 
     # Java (JDK para desarrollo móvil y backend)
-    jdk25
-    maven          # para proyectos Java (opcional)
+  ] ++ development.java ++ [
     gradle         # para Android/Java (opcional)
 
     # Android Studio es mejor instalarlo por separado, pero puedes añadir android-tools para ADB
-    android-studio
-    android-tools
+  ] ++ development.android ++ [
 
     godot_4
 
     # PHP y servidor web
-    php82
-    php82Packages.composer
+  ] ++ development.php ++ [
 
     # Bases de datos (servidores y clientes)
-    mariadb
-    postgresql     # si también quieres PostgreSQL
-    mongosh
-    mongodb-tools
+  ] ++ development.databaseClients ++ [
 
     # Contenedores y virtualización
-    docker
+  ] ++ development.containers ++ [
     podman         # alternativa sin demonio
     qemu           # para emulación
 
-    python3
+  ] ++ development.python ++ [
 
-    kdePackages.kdenlive
-
-    pixieditor
-    vscode
+  ] ++ config.profiles._internal.multimediaVideoEditing ++ config.profiles._internal.multimediaImageEditing ++ development.editor ++ [
 
     vim
     unrar
@@ -225,14 +215,15 @@
     fastfetch
     ripgrep
     fd
-    gdb
+  ] ++ development.debug ++ [
 
-    onlyoffice-desktopeditors
+    # Office profile packages stay at their original position in the system path.
+  ] ++ config.profiles._internal.officePackages ++ [
 
     darkly
     kdePackages.breeze-gtk
 
-    scrcpy
+  ] ++ development.mobile ++ [
 
     wgcf
     wireguard-tools
@@ -352,17 +343,6 @@
         error_symbol = "[➜](bold red)";
       };
     };
-  };
-
-  programs.obs-studio = {
-    enable = true;
-    package = pkgs.obs-studio.override { cudaSupport = true; };
-    plugins = with pkgs.obs-studio-plugins; [
-      wlrobs
-      obs-backgroundremoval
-      obs-pipewire-audio-capture
-      obs-vaapi
-    ];
   };
 
   qt.enable = true;

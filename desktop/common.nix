@@ -1,10 +1,14 @@
 { config, lib, pkgs, ... }:
 
+let
+  development = import ../modules/system/development/base.nix { inherit pkgs; };
+in
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  imports = [
+    ./hardware-configuration.nix
+    ../profiles/office.nix
+    ../profiles/multimedia.nix
+  ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -115,46 +119,32 @@
     vulkan-tools
     mesa-demos
     kitty
-    uv
-    gcc
-    pkg-config
-    git
-    git-lfs
+  ] ++ development.core ++ [
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
     pciutils
     qalculate-qt
     brave
     img2pdf
+  ] ++ config.profiles._internal.multimediaVlc ++ development.node ++ [
 
-    vlc
-
-    nodejs_22
-    pnpm
-
-    jdk25
-    maven
+  ] ++ development.java ++ [
     gradle_9
 
-    android-studio
-    android-tools
+  ] ++ development.android ++ [
 
     godot_4
-    pixieditor
+  ] ++ config.profiles._internal.multimediaImageEditing ++ [
 
-    php82
-    php82Packages.composer
+  ] ++ development.php ++ [
 
-    mariadb
-    postgresql
-    mongosh
-    mongodb-tools
+  ] ++ development.databaseClients ++ [
 
-    docker
+  ] ++ development.containers ++ [
 
-    python3
+  ] ++ development.python ++ [
 
-    vscode
+  ] ++ development.editor ++ [
 
     unrar
 
@@ -165,18 +155,16 @@
     btop
     fastfetch
     fd
-    gdb
+  ] ++ development.debug ++ [
 
-    onlyoffice-desktopeditors
-
-    kdePackages.kdenlive
+  ] ++ config.profiles._internal.officePackages ++ config.profiles._internal.multimediaVideoEditing ++ [
 
     darkly
     kdePackages.breeze-gtk
 
     libreoffice-fresh
 
-    scrcpy
+  ] ++ development.mobile ++ [
   ];
 
   environment.localBinInPath = true;
@@ -253,17 +241,6 @@
         error_symbol = "[✗](bold red)";
       };
     };
-  };
-
-  programs.obs-studio = {
-    enable = true;
-    package = pkgs.obs-studio.override { cudaSupport = true; };
-    plugins = with pkgs.obs-studio-plugins; [
-      wlrobs
-      obs-backgroundremoval
-      obs-pipewire-audio-capture
-      obs-vaapi
-    ];
   };
 
   qt.enable = true;

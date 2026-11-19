@@ -3,11 +3,11 @@
 {
   imports = [
     ./common.nix
-    ./plasma.nix
+    ../modules/system/plasma.nix
     ./hyprland.nix
-    ./jetbrains.nix
+    ../modules/system/jetbrains.nix
     ./gaming.nix
-    ./virtual-machine.nix
+    ../modules/system/virtual-machine.nix
     #./hotspost.nix
   ];
 

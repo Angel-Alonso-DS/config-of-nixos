@@ -3,11 +3,11 @@
 {
   imports = [
     ./common.nix
-    ./plasma.nix
+    ../modules/system/plasma.nix
     ./hyprland.nix
     # ./niri.nix
-    ./virtual-machine.nix
-    ./jetbrains.nix
+    ../modules/system/virtual-machine.nix
+    ../modules/system/jetbrains.nix
     ./gaming.nix
     ./roblox-dev.nix
   ];

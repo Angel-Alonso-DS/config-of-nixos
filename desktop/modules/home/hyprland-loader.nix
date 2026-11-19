@@ -7,7 +7,7 @@
 
   xdg.configFile."hypr/hypridle.conf".source = ./hyprland/hypridle.conf;
 
-  xdg.configFile."hypr/hyprlock.conf".source = ./hyprland/hyprlock.conf;
+  xdg.configFile."hypr/hyprlock.conf".source = ../../../modules/home/hyprland/hyprlock.conf;
 
   xdg.configFile."swappy/config".text = ''
     [Default]
