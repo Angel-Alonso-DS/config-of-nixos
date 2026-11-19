@@ -58,22 +58,6 @@ in
         # 3306  # Puerto de mysql de manera publica
       ];
 
-      # Cambiar la ip por la real
-      extraCommands = ''
-        iptables -A nixos-fw -p tcp --dport 3306 -s 192.168.1.50 -j ACCEPT
-
-        iptables -A nixos-fw -p tcp --dport 3306 -s 172.23.50.42 -j ACCEPT
-        iptables -A nixos-fw -p tcp --dport 3306 -s 172.23.50.19 -j ACCEPT
-        iptables -A nixos-fw -p tcp --dport 3306 -s 192.168.56.1 -j ACCEPT
-      '';
-
-      extraStopCommands = ''
-        iptables -D nixos-fw -p tcp --dport 3306 -s 192.168.1.50 -j ACCEPT || true
-
-        iptables -D nixos-fw -p tcp --dport 3306 -s 172.23.50.42 -j ACCEPT || true
-        iptables -D nixos-fw -p tcp --dport 3306 -s 172.23.50.19 -j ACCEPT || true
-        iptables -D nixos-fw -p tcp --dport 3306 -s 192.168.56.1 -j ACCEPT || true
-      '';
     };
   };
 
@@ -286,7 +270,7 @@ in
     enable = true;
     package = pkgs.mariadb;
     settings.mysqld = {
-      bind-address = "0.0.0.0";
+      bind-address = "127.0.0.1";
       port = 3306;
     };
     ensureDatabases = [ "ipartydjs_db" ]; # Base de datos de un proyecto anterior que no se esta desarrollando por el momento (Consideracion a quitar de la configuracio en un futuro)
