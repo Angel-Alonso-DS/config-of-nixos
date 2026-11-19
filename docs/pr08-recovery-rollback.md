@@ -2,7 +2,7 @@
 
 ## 1. Estado y alcance
 
-Esta guía prepara la recuperación de `nixos-alons` (laptop) y `nixos-desktop` (desktop). La configuración multi-host reorganizada aún no se ha activado físicamente. Ningún procedimiento de este documento constituye evidencia de que un menú, generación, copia de seguridad o medio de rescate funcione en los equipos actuales.
+Esta guía prepara la recuperación de `nixos-alons` (laptop) y `nixos-desktop` (desktop). Las pruebas físicas comunicadas del 18 de noviembre de 2026 se registran en la sección 12; los procedimientos de esta guía no prueban por sí mismos el estado actual de los equipos ni la existencia de copias de seguridad.
 
 La [configuración de laptop](../laptop/common.nix) declara GRUB UEFI; la [de desktop](../desktop/common.nix) declara **systemd-boot UEFI**, que se conserva. Ambos archivos de hardware declaran `/boot`: [laptop](../laptop/hardware-configuration.nix) y [desktop](../desktop/hardware-configuration.nix). El [flake](../flake.nix) fija una revisión de nixpkgs por host. La [validación previa de los hosts](baseline/HOST-VALIDATION.md) recoge observaciones físicas anteriores, no garantiza su estado actual. Los puntos de montaje y dispositivos deben confirmarse en cada equipo.
 
@@ -51,7 +51,7 @@ ls -l /nix/var/nix/profiles/system-*-link
 
 En desktop, `bootctl status` y `bootctl list` muestran lo que la interfaz del cargador puede informar; revisar también si hay una selección para el siguiente arranque. En laptop, inspeccionar el `grub.cfg` y, si se utiliza, el entorno guardado de GRUB en sus ubicaciones **realmente montadas**. Si no se puede determinar la selección efectiva, anotarla como desconocida y comprobarla físicamente.
 
-## 6. Checklist antes de la primera activación
+## 6. Checklist antes de una activación
 
 - [ ] Elegir un host a la vez, con acceso físico, alimentación estable y tiempo para recuperar.
 - [ ] Registrar hostname, versión instalada, commit y revisión del flake, sistema activo, arrancado, perfil y entrada predeterminada.
@@ -63,7 +63,7 @@ En desktop, `bootctl status` y `bootctl list` muestran lo que la interfaz del ca
 - [ ] Revisar CI del commit y el atributo correcto del flake: `nixos-alons` o `nixos-desktop`. Un build correcto no prueba el arranque físico.
 - [ ] Verificar sintaxis y efectos de la activación propuesta para las versiones implicadas, mantener `flake.lock` y obtener la autorización correspondiente.
 
-La primera activación se hará en una ventana supervisada y no forma parte de este PR. No pasar al segundo host hasta validar arranque y recuperación del primero.
+Cada activación requiere una ventana supervisada y autorización. No pasar al segundo host hasta validar arranque y recuperación del primero. Véase el [procedimiento de despliegue desde Git](git-deployment-workflow.md).
 
 ## 7. Checklist posterior a la activación
 
@@ -117,7 +117,7 @@ No reiniciar servicios, cambiar drivers ni activar una generación a ciegas. Una
 
 ## 10. Plan de rescate con USB UEFI
 
-El USB aún debe prepararse y probarse: no se asume que exista ni que arranque en ninguno de los dos hosts.
+El USB NixOS Minimal se probó en modo UEFI en ambos hosts el 18 de noviembre de 2026. Comprobar su disponibilidad antes de cada intervención; permite rescate, pero no sustituye respaldos de datos personales.
 
 1. Si el menú del cargador funciona, probar primero una generación conocida. Si no, arrancar un medio NixOS de rescate en modo UEFI y comprobar que se está en el host y entorno esperados.
 2. Identificar discos, particiones, sistemas de archivos y posibles volúmenes cifrados; contrastar UUID, tamaño y contenido con el inventario previo. No confiar únicamente en nombres como `/dev/nvme0n1p1`, que pueden cambiar.
@@ -138,7 +138,9 @@ Home Manager puede modificar archivos de usuario durante la activación. La exte
 
 **Verificado documentalmente:** nombres de atributos, bootloaders declarados y límites de menú en el repositorio; los comandos de diagnóstico de este documento son consultas de lectura según la documentación general de Nix, systemd y herramientas del sistema. La documentación de baseline recoge observaciones previas, no una prueba de la configuración reorganizada.
 
-**Pendiente en cada equipo:** versión y opciones realmente disponibles; menús y generaciones arrancables; selección predeterminada; UUID y montajes; espacio; estado de GC y servicios; sesiones gráficas, GPU y red; respaldos restaurables; USB UEFI y proceso de rescate. Registrar resultados antes de activar.
+**Pruebas físicas comunicadas el 18 de noviembre de 2026:** laptop tiene la generación funcional 163 y se probó la recuperación con 162; desktop tiene la generación funcional 117 y se probó la recuperación con 116. En ambos se probó el arranque UEFI del USB NixOS Minimal. Ambos checkouts estaban en `dev` (`4cfa9daf`) y el `system.build.toplevel` de cada host coincidía con su generación actual. Estas observaciones no garantizan el estado futuro ni prueban una restauración de respaldos o todo el proceso de rescate.
+
+**Pendiente:** prueba de KDE Plasma, verificaciones completas de servicios y revisión de espacio en desktop. Además, confirmar en cada intervención versión y opciones disponibles, selección predeterminada, UUID y montajes, espacio necesario, estado de GC, GPU y red, respaldos restaurables y plan de rescate. Registrar resultados antes de activar; no inferir que las pruebas anteriores cubrieron estos puntos.
 
 Las revisiones fijadas de nixpkgs son `f3a73bcf5d1c5b75a66cf35a48957e30d41d647a` (laptop) y `ee48b147c18c7de1e6ec97dc74792be42724bed1` (desktop). La sintaxis de operaciones de escritura debe comprobarse contra esas fuentes cuando estén disponibles y, además, contra las herramientas de la generación instalada que vaya a ejecutarlas. No se incluyen aquí comandos de escritura como procedimiento listo para ejecutar.
 
