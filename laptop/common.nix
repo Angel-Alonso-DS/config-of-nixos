@@ -256,16 +256,6 @@ in
 
   services.dbus.enable = true;
 
-  services.postgresql = {
-    enable = true;
-    package = pkgs.postgresql_16;
-    ensureDatabases = [ "mi_base_de_datos" ];
-    authentication = pkgs.lib.mkOverride 10 ''
-      #type database  DBuser  auth-method
-      local all       all     trust
-    '';
-  };
-
   services.mysql = {
     enable = true;
     package = pkgs.mariadb;
