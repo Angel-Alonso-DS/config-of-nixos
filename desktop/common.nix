@@ -28,6 +28,11 @@ in
   nixpkgs.config.allowUnfree = true;
 
   services.openssh.enable = true;
+  services.openssh.settings = {
+    PubkeyAuthentication = true;
+    PasswordAuthentication = false;
+    KbdInteractiveAuthentication = false;
+  };
 
   networking = {
     hostName = "nixos-desktop";
