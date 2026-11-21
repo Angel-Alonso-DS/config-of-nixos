@@ -45,6 +45,11 @@ in
   };
 
   services.openssh.enable = true;
+  services.openssh.settings = {
+    PubkeyAuthentication = true;
+    PasswordAuthentication = false;
+    KbdInteractiveAuthentication = false;
+  };
 
   # === 2. Configuración de Red ===
   networking = {
