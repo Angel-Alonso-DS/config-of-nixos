@@ -2,6 +2,15 @@
 
 let
   development = import ../modules/system/development/base.nix { inherit pkgs; };
+  minecraftLan = pkgs.writeTextFile {
+    name = "minecraft-lan";
+    destination = "/bin/minecraft-lan";
+    executable = true;
+    text = "#!${pkgs.python3}/bin/python3\n" + builtins.replaceStrings
+      [ "@ip@" "@iptables@" ]
+      [ "${pkgs.iproute2}/bin/ip" "${pkgs.iptables}/bin/iptables" ]
+      (builtins.readFile ./minecraft-lan.py);
+  };
 in
 {
   imports = [
@@ -59,7 +68,6 @@ in
       enable = true;
       allowedTCPPorts = [ 
         5173  # Puerto de frontend en react
-        25565 # Puerto para minecraft
         # 3306  # Puerto de mysql de manera publica
       ];
 
@@ -157,6 +165,7 @@ in
 
   # === 5. Herramientas base (sin entorno gráfico) ===
   environment.systemPackages = with pkgs; [
+    minecraftLan
     vulkan-tools
     mesa-demos
     iproute2
