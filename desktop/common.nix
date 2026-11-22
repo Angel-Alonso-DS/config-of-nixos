@@ -41,8 +41,14 @@ in
       enable = true;
       allowedTCPPorts = [
         5173
-        25565
       ];
+      # Minecraft Java: solo IPv4 desde la red doméstica por Ethernet.
+      extraCommands = ''
+        iptables -A nixos-fw -i enp3s0 -s 10.26.0.0/24 -p tcp --dport 25565 -j ACCEPT
+      '';
+      extraStopCommands = ''
+        iptables -D nixos-fw -i enp3s0 -s 10.26.0.0/24 -p tcp --dport 25565 -j ACCEPT 2>/dev/null || true
+      '';
     };
   };
 
