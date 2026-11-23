@@ -10,6 +10,7 @@
     ../modules/system/jetbrains.nix
     ./gaming.nix
     ./roblox-dev.nix
+    ../modules/system/nix-editor.nix
   ];
   # Montaje automático de discos
   fileSystems = {

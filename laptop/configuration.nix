@@ -8,6 +8,7 @@
     ../modules/system/jetbrains.nix
     ./gaming.nix
     ../modules/system/virtual-machine.nix
+    ../modules/system/nix-editor.nix
     #./hotspost.nix
   ];
 
