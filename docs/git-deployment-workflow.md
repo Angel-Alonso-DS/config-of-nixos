@@ -1,6 +1,8 @@
 # Procedimiento supervisado de despliegue desde Git
 
-Este procedimiento administra cada host desde `/home/alonso/nixos`, sin modificar `/etc/nixos` ni automatizar el despliegue. Ejecutar las comprobaciones en el equipo correspondiente: `nixos-alons` es la laptop con GRUB UEFI y `nixos-desktop` es la desktop con systemd-boot UEFI. Trabajar en un host a la vez, con acceso físico y tiempo para recuperar.
+Este procedimiento administra cada host desde `/home/alonso/nixos`, sin modificar `/etc/nixos` ni automatizar el despliegue. Ejecutar las comprobaciones en el equipo correspondiente: `nixos-alons` es la laptop con GRUB UEFI y `nixos-desktop` es el escritorio con GRUB UEFI. Trabajar en un host a la vez, con acceso físico y tiempo para recuperar.
+
+Para agregar, quitar o modificar aplicaciones, módulos, scripts y configuraciones, consultar primero la [guía de cambios](configuration-change-workflow.md).
 
 ## Flujo de cambios y autorización
 
@@ -119,8 +121,25 @@ Los siguientes nombres describen operaciones distintas; verificar las opciones y
 - [ ] Verificar sesiones gráficas, incluyendo KDE Plasma, periféricos, red, GPU y servicios utilizados; revisar unidades fallidas y registros según el [checklist del runbook](pr08-recovery-rollback.md#7-checklist-posterior-a-la-activación).
 - [ ] Registrar resultados, incidencias y cualquier prueba pendiente. Ante un fallo, seguir el runbook y conservar la generación anterior y los respaldos; no considerar el siguiente host validado por la prueba de este.
 
-## Estado conocido al 18 de noviembre de 2026
+## Estado histórico al 18 de noviembre de 2026
 
 Según las pruebas físicas comunicadas, laptop tiene la generación funcional 163 y se probó la recuperación con 162; desktop tiene la generación funcional 117 y se probó la recuperación con 116. En ambos se probó un USB NixOS Minimal en modo UEFI. Ambos checkouts estaban sincronizados con `dev` en `4cfa9daf` y cada evaluación de `system.build.toplevel` coincidía exactamente con su generación actual. Estos datos son una instantánea, no sustituyen las comprobaciones antes de un despliegue posterior.
 
-Quedan pendientes la prueba de KDE Plasma, las verificaciones completas de servicios y la revisión del espacio de desktop. El [estado del runbook](pr08-recovery-rollback.md#12-verificación-y-criterios-de-autorización) conserva los demás puntos que aún requieren comprobación. PR 06 de GRUB continúa pospuesto.
+Quedan pendientes la prueba de KDE Plasma, las verificaciones completas de servicios y la revisión del espacio de desktop. El [estado del runbook](pr08-recovery-rollback.md#12-verificación-y-criterios-de-autorización) conserva los demás puntos que aún requieren comprobación. En esa fecha, la migración a GRUB todavía estaba pendiente.
+
+## Validación física del 22 de noviembre de 2026
+
+La migración de `nixos-desktop` a GRUB UEFI se completó correctamente:
+
+- Instalación de GRUB UEFI sin errores.
+- Arranque físico satisfactorio de la generación 121.
+- Recuperación mediante la generación 120 desde GRUB.
+- Regreso al arranque predeterminado de la generación 121.
+- Arranque alternativo mediante `Linux Boot Manager` (systemd-boot).
+- USB de recuperación UEFI probado y respaldo ESP verificado.
+- Configuración integrada en `main` mediante los PR #10 y #33.
+
+**Nota:** el runbook `docs/pr08-recovery-rollback.md` conserva
+referencias históricas a systemd-boot como cargador principal del
+escritorio. Requiere actualización antes de utilizarlo como guía vigente
+de recuperación de GRUB.
