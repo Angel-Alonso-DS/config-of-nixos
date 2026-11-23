@@ -1,1 +1,8 @@
 **/secrets/
+
+# Python
+__pycache__/
+*.pyc
+
+# NixOS build output
+/result
