@@ -11,9 +11,16 @@ in
   ];
 
   # Bootloader.
-  boot.loader.systemd-boot.enable = true;
+  # Declarative preparation only; installing GRUB requires a separate activation.
+  boot.loader.systemd-boot.enable = false;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.loader.systemd-boot.configurationLimit = 10;
+  boot.loader.grub = {
+    enable = true;
+    efiSupport = true;
+    efiInstallAsRemovable = false;
+    device = "nodev";
+    configurationLimit = 10;
+  };
 
   boot.kernelModules = [ "coretemp" "nct6775" ];
 
