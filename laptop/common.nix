@@ -11,6 +11,21 @@ let
       [ "${pkgs.iproute2}/bin/ip" "${pkgs.iptables}/bin/iptables" ]
       (builtins.readFile ./minecraft-lan.py);
   };
+  frontendLan = pkgs.writeTextFile {
+    name = "frontend-lan";
+    destination = "/bin/frontend-lan";
+    executable = true;
+    text = "#!${pkgs.python3}/bin/python3\n" + builtins.replaceStrings
+      [ "@ip@" "@iptables@" ]
+      [ "${pkgs.iproute2}/bin/ip" "${pkgs.iptables}/bin/iptables" ]
+      (builtins.readFile ./frontend-lan.py);
+  };
+  frontendLanDispatcher = pkgs.writeShellScript "frontend-lan-dispatcher" (
+    builtins.replaceStrings
+      [ "@frontendLan@" ]
+      [ "${frontendLan}/bin/frontend-lan" ]
+      (builtins.readFile ./frontend-lan-dispatcher.sh)
+  );
 in
 {
   imports = [
@@ -64,13 +79,13 @@ in
   networking = {
     hostName = "nixos-alons"; 
     networkmanager.enable = true;    # Habilita NetworkManager
+    networkmanager.dispatcherScripts = [
+      { source = frontendLanDispatcher; type = "basic"; }
+      { source = frontendLanDispatcher; type = "pre-up"; }
+      { source = frontendLanDispatcher; type = "pre-down"; }
+    ];
     firewall = {
       enable = true;
-      allowedTCPPorts = [ 
-        5173  # Puerto de frontend en react
-        # 3306  # Puerto de mysql de manera publica
-      ];
-
     };
   };
 
@@ -166,6 +181,7 @@ in
   # === 5. Herramientas base (sin entorno gráfico) ===
   environment.systemPackages = with pkgs; [
     minecraftLan
+    frontendLan
     vulkan-tools
     mesa-demos
     iproute2
