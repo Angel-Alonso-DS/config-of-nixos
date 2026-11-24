@@ -21,7 +21,7 @@ hl.monitor({
 ---- MY PROGRAMS ----
 ---------------------
 
-local terminal    = "kitty"
+local terminal     = "kitty"
 local ideEditor    = "code"
 local fileManager  = "dolphin" -- ya viene instalado vía plasma6, no vía Hyprland;
 -- "Abrir con" no funciona fuera de sesión Plasma (bug
@@ -60,9 +60,6 @@ hl.env("XDG_MENU_PREFIX", "plasma-")
 ---- LOOK AND FEEL ----
 -----------------------
 
--- Gaps/bordes/blur del template original — sin tocar. Fase 3 (identidad
--- visual, paleta #85EDA4/#EDA485) es donde esto se rediseña a propósito,
--- no de paso aquí.
 hl.config({
     general = {
         gaps_in  = 4,
@@ -248,12 +245,10 @@ hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("hyprlock"))
 
 hl.bind(mainMod .. " + D", hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/system-info-menu.lua"))
 
-
 -- Wallpaper: siguiente aleatorio / marcar-desmarcar el actual como favorito
 hl.bind(mainMod .. " + W",         hl.dsp.exec_cmd("lua ~/.config/hypr/scripts/wallpaper.lua pick"))
 hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("lua ~/.config/hypr/scripts/wallpaper.lua toggle-favorite"))
 hl.bind(mainMod .. " + CTRL + W", hl.dsp.exec_cmd("lua ~/.config/hypr/scripts/wallpaper.lua random"))
-
 
 -- Menús de Walker (red/bluetooth/energía) — ya confirmados funcionando
 -- desde Waybar, se agregan también por teclado. N y SHIFT+B/SHIFT+P
@@ -261,7 +256,7 @@ hl.bind(mainMod .. " + CTRL + W", hl.dsp.exec_cmd("lua ~/.config/hypr/scripts/wa
 hl.bind(mainMod .. " + N",         hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/network-menu.lua"))
 hl.bind(mainMod .. " + H",         hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/hotspot-menu.lua"))
 hl.bind(mainMod .. " + CTRL + N",  hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/audio-output-menu.lua"))
-hl.bind(mainMod .. " + CTRL + B", hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/bluetooth-menu.lua"))
+hl.bind(mainMod .. " + CTRL + B",  hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/bluetooth-menu.lua"))
 hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/power-menu.lua"))
 hl.bind(mainMod .. " + CTRL + P",  hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/power-profile-menu.lua"))
 

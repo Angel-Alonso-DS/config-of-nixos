@@ -36,7 +36,7 @@ hl.monitor({
 ---- MY PROGRAMS ----
 ---------------------
 
-local terminal    = "kitty"
+local terminal     = "kitty"
 local ideEditor    = "code"
 local fileManager  = "dolphin"
 local browser      = "brave"
@@ -73,7 +73,7 @@ hl.config({
         border_size = 1,
         col = {
             active_border   = { colors = { "rgba(68ddddee)", "rgba(33ccffee)" }, angle = 45 },
-          inactive_border = "rgba(999999aa)",
+            inactive_border = "rgba(999999aa)",
         },
         resize_on_border = false,
         allow_tearing = false,
@@ -171,7 +171,10 @@ hl.config({
 
 local mainMod = "SUPER"
 
-hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd(terminal))
+-- Alternar visibilidad de todas las instancias de Waybar
+hl.bind(mainMod .. " + SPACE", hl.dsp.exec_cmd("bash ~/.config/waybar/scripts/toggle-visibility.sh"))
+
+hl.bind(mainMod .. " + SHIFT + Return", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + SHIFT + Q",      hl.dsp.window.close())
 
 -- Corregido: el original pasaba un comando de shell que contenía sintaxis
@@ -179,9 +182,9 @@ hl.bind(mainMod .. " + SHIFT + Q",      hl.dsp.window.close())
 -- nada. hl.dsp.exit() es un dispatcher nativo, se usa directo.
 hl.bind(mainMod .. " + SHIFT + X", hl.dsp.exit())
 
-hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))
-hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
-hl.bind(mainMod .. " + I", hl.dsp.exec_cmd(ideEditor))
+hl.bind(mainMod .. " + SHIFT + B", hl.dsp.exec_cmd(browser))
+hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exec_cmd(fileManager))
+hl.bind(mainMod .. " + SHIFT + I", hl.dsp.exec_cmd(ideEditor))
 hl.bind(mainMod .. " + T", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + M", hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
@@ -265,7 +268,7 @@ hl.bind(mainMod .. " + CTRL + W", hl.dsp.exec_cmd("lua ~/.config/hypr/scripts/wa
 hl.bind(mainMod .. " + N",         hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/network-menu.lua"))
 hl.bind(mainMod .. " + H",         hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/hotspot-menu.lua"))
 hl.bind(mainMod .. " + CTRL + N",  hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/audio-output-menu.lua"))
-hl.bind(mainMod .. " + SHIFT + B", hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/bluetooth-menu.lua"))
+hl.bind(mainMod .. " + CTRL + B",  hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/bluetooth-menu.lua"))
 hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/power-menu.lua"))
 hl.bind(mainMod .. " + CTRL + P",  hl.dsp.exec_cmd("lua ~/.config/waybar/scripts/power-profile-menu.lua"))
 
