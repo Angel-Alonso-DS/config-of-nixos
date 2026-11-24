@@ -84,6 +84,7 @@ tooltip label {
 #waybar {
     background-color: transparent;
 }
+
 #waybar > box {
     margin: 0;
     padding: 6px 4px 6px;
@@ -180,6 +181,18 @@ tooltip > box {
 }
 #idle_inhibitor {
     background-color: @time;
+}
+
+#custom-usb {
+    background-color: @tone-a;
+}
+
+#custom-left_div.9 {
+    color: @tone-a;
+}
+
+#custom-left_inv.9 {
+    color: @tone-a;
 }
 
 #clock.time {

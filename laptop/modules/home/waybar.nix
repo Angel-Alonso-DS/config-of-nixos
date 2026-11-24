@@ -35,7 +35,7 @@
   # materializaba — por eso "no se mostraba nada", no era culpa de
   # Walker ni de los scripts en sí.
   xdg.configFile."waybar/scripts/menu-common.lua" = {
-    source = ./waybar/scripts/menu-common.lua;
+    source = ../../../modules/home/waybar/scripts/menu-common.lua;
   };
   xdg.configFile."waybar/scripts/network-menu.lua" = {
     source = ../../../modules/home/waybar/scripts/network-menu.lua;
@@ -373,7 +373,7 @@
       };
     };
 
-    style = builtins.readFile ./waybar/style.css;
+    style = builtins.readFile ../../../modules/home/waybar/style.css;
   };
 
   systemd.user.services.waybar.Unit.ConditionEnvironment = lib.mkForce "XDG_CURRENT_DESKTOP=Hyprland";
