@@ -344,7 +344,7 @@ in
 
       character = {
         success_symbol = "[➜](bold green)";
-        error_symbol = "[➜](bold red)";
+        error_symbol = "[✗](bold red)";
       };
     };
   };
